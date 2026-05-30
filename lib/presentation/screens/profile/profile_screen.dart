@@ -13,6 +13,8 @@ import 'package:watch_track/presentation/screens/detail/detail_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:watch_track/core/appwrite_setup.dart';
+import 'package:watch_track/features/import_watchlist/presentation/import_review_screen.dart';
+import 'package:watch_track/features/import_watchlist/presentation/watchlist_import_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -67,11 +69,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _buildTopSection(context, auth, userData),
     
                     const SizedBox(height: 24),
+
+                    // ANALYTICS DASHBOARD
+                    _buildAnalyticsDashboard(context),
+
+                    const SizedBox(height: 32),
     
                     // LIBRARY SECTIONS
                     _buildLibrarySections(context),
     
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
     
                     // PREFERENCES SECTION
                     _buildPreferencesSection(context),
@@ -262,16 +269,141 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Widget _buildAnalyticsDashboard(BuildContext context) {
+    final tracking = context.watch<TrackingProvider>();
+    final allItems = tracking.trackedTitles.values.toList();
+    
+    // Calculations
+    final watched = allItems.where((t) => t.status == TrackingStatus.watched).toList();
+    final totalEpisodes = watched.fold(0, (sum, item) => sum + item.lastEpisode);
+    final totalHours = (totalEpisodes * 24) / 60; // Assuming 24 mins per episode
+    
+    final completionRate = allItems.isEmpty ? 0.0 : (watched.length / allItems.length);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.analytics_outlined, color: AppColors.primary, size: 20),
+                const SizedBox(width: 12),
+                Text(
+                  'BINGE ANALYTICS',
+                  style: GoogleFonts.dmSans(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildAnalyticsItem(
+                  '${totalHours.toStringAsFixed(1)}h',
+                  'TIME INVESTED',
+                  Icons.access_time_rounded,
+                ),
+                _buildAnalyticsItem(
+                  '${(completionRate * 100).toInt()}%',
+                  'COMPLETION',
+                  Icons.check_circle_outline_rounded,
+                ),
+                _buildAnalyticsItem(
+                  watched.length.toString(),
+                  'TITLES DONE',
+                  Icons.auto_awesome_motion_rounded,
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            // Progress Bar
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'LOYALTY LEVEL: BINGE MASTER',
+                      style: GoogleFonts.dmSans(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'XP: ${watched.length * 100}/1000',
+                      style: GoogleFonts.dmSans(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: (watched.length % 10) / 10,
+                    backgroundColor: Colors.white10,
+                    color: AppColors.primary,
+                    minHeight: 4,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAnalyticsItem(String value, String label, IconData icon) {
+    return Column(
+      children: [
+        Icon(icon, color: AppColors.textMuted, size: 16),
+        const SizedBox(height: 12),
+        Text(
+          value,
+          style: GoogleFonts.playfairDisplay(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: GoogleFonts.dmSans(
+            color: AppColors.textMuted,
+            fontSize: 8,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1,
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildLibrarySections(BuildContext context) {
     final tracking = context.watch<TrackingProvider>();
     
     final watching = tracking.trackedTitles.values.where((t) => t.status == TrackingStatus.watching).toList();
     final watched = tracking.trackedTitles.values.where((t) => t.status == TrackingStatus.watched).toList();
-    
-    // Filter favorites: items that are tracked and marked as favorite
-    final favorites = tracking.trackedTitles.values
-        .where((t) => t.isFavorite)
-        .toList();
+    final favorites = tracking.trackedTitles.values.where((t) => t.isFavorite).toList();
 
     return Column(
       children: [
@@ -389,6 +521,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 12),
+          _buildPreferenceTile(
+            icon: Icons.upload_file_rounded,
+            title: 'Smart Watchlist Import',
+            trailing: const Icon(Icons.arrow_forward_ios, color: AppColors.textMuted, size: 14),
+            onTap: () => _showImportOptionsSheet(context),
+          ),
           _buildPreferenceTile(
             icon: Icons.dark_mode_outlined,
             title: 'Dark Mode',
@@ -573,6 +711,103 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         );
       },
+    );
+  }
+
+  void _showImportOptionsSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'IMPORT METHOD',
+                style: GoogleFonts.dmSans(
+                  color: AppColors.textMuted,
+                  fontSize: 10,
+                  letterSpacing: 2,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: const Icon(Icons.upload_file, color: AppColors.primary),
+                title: Text('Import from File', style: GoogleFonts.dmSans(color: Colors.white)),
+                subtitle: Text('Upload a CSV or TXT file', style: GoogleFonts.dmSans(color: AppColors.textMuted, fontSize: 12)),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ImportReviewScreen()),
+                  );
+                  context.read<WatchlistImportProvider>().startImportFromFile();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.paste, color: AppColors.primary),
+                title: Text('Paste Text', style: GoogleFonts.dmSans(color: Colors.white)),
+                subtitle: Text('Paste a list of movie/show titles', style: GoogleFonts.dmSans(color: AppColors.textMuted, fontSize: 12)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showPasteTextDialog(context);
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showPasteTextDialog(BuildContext context) {
+    final TextEditingController textController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Text('Paste Titles', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold)),
+        content: TextField(
+          controller: textController,
+          maxLines: 8,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: 'Movie/Show Title 1\nMovie/Show Title 2\n...',
+            hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+            border: OutlineInputBorder(borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
+            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('CANCEL', style: GoogleFonts.dmSans(color: AppColors.textMuted)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+            onPressed: () {
+              final text = textController.text.trim();
+              if (text.isEmpty) return;
+
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ImportReviewScreen()),
+              );
+              context.read<WatchlistImportProvider>().startImportFromText(text);
+            },
+            child: Text('IMPORT', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
     );
   }
 

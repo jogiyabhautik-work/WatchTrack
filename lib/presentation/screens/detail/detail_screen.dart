@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
@@ -7,7 +8,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
-
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:watch_track/presentation/widgets/movie_card.dart';
 import 'package:watch_track/core/constants/app_colors.dart';
@@ -20,7 +21,9 @@ import 'package:watch_track/core/providers/tracking_provider.dart';
 import 'package:watch_track/core/providers/watchlist_folder_provider.dart';
 import 'package:watch_track/data/models/user_title_model.dart';
 import 'package:watch_track/presentation/widgets/watchlist_action_sheet.dart';
+import 'package:watch_track/presentation/widgets/watchlist_action_sheet.dart';
 import 'package:watch_track/core/utils/adaptive_theme_helper.dart';
+import 'package:watch_track/features/soundtrack/presentation/widgets/songs_section.dart';
 
 class DetailScreen extends StatefulWidget {
   final Movie movie;
@@ -40,6 +43,35 @@ class _DetailScreenState extends State<DetailScreen> {
   bool _isLoadingSimilar = true;
   String? _detailsError;
   bool _isNavigating = false;
+
+  YoutubePlayerController? _youtubeController;
+  bool _isTrailerReady = false;
+
+  Future<void> _initializeTrailer() async {
+    try {
+      final trailerKey = await _apiService.getMovieTrailer(widget.movie.id, isMovie: widget.movie.isMovie);
+      if (trailerKey != null && mounted) {
+        setState(() {
+          _youtubeController = YoutubePlayerController(
+            initialVideoId: trailerKey,
+            flags: const YoutubePlayerFlags(
+              autoPlay: false,
+              mute: false,
+            ),
+          );
+          _isTrailerReady = true;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching trailer: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _youtubeController?.dispose();
+    super.dispose();
+  }
 
   // Persistence across session
   bool _isExpanded = false;
@@ -61,6 +93,7 @@ class _DetailScreenState extends State<DetailScreen> {
     super.initState();
     _loadAllContent();
     _updateAccentColor(widget.movie.posterPath);
+    _initializeTrailer();
   }
 
   Future<void> _loadAllContent({bool forceRefresh = false}) async {
@@ -121,12 +154,16 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   void _playTrailer(Movie movie) async {
-    final trailerKey =
-        await _apiService.getMovieTrailer(movie.id, isMovie: movie.isMovie);
-    if (trailerKey != null) {
-      final url = Uri.parse('https://www.youtube.com/watch?v=$trailerKey');
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
+    if (_isTrailerReady && _youtubeController != null) {
+      _youtubeController!.play();
+    } else {
+      final trailerKey =
+          await _apiService.getMovieTrailer(movie.id, isMovie: movie.isMovie);
+      if (trailerKey != null) {
+        final url = Uri.parse('https://www.youtube.com/watch?v=$trailerKey');
+        if (await canLaunchUrl(url)) {
+          await launchUrl(url, mode: LaunchMode.externalApplication);
+        }
       }
     }
   }
@@ -185,139 +222,233 @@ class _DetailScreenState extends State<DetailScreen> {
     final movie = _fullMovie ?? widget.movie;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: RefreshIndicator(
-        onRefresh: _handleRefresh,
-        backgroundColor: AppColors.surface,
-        color: AppColors.primary,
-        child: SingleChildScrollView(
-          key: PageStorageKey('detail_${widget.movie.id}'),
-          physics: const AlwaysScrollableScrollPhysics(
-            parent: BouncingScrollPhysics(),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              RepaintBoundary(child: _buildHeroHeader(movie)),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 24),
-                    _buildTabs(),
-                    const SizedBox(height: 24),
-                    if (_selectedTab == 0)
-                      _buildDetailsTab(movie)
-                    else
-                      _buildReviewsTab(),
-                    const SizedBox(height: 40),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeroHeader(Movie movie) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    return SizedBox(
-      height: screenHeight * 0.38,
-      width: double.infinity,
-      child: Stack(
+      backgroundColor: Colors.black,
+      body: Stack(
         children: [
-          Positioned.fill(
-            child: Hero(
-              tag: widget.heroTag ?? 'movie_${movie.id}',
-              child: CachedNetworkImage(
-                imageUrl: movie.backdropPath,
-                fit: BoxFit.cover,
-                placeholder: (context, url) =>
-                    Container(color: AppColors.surface),
-                errorWidget: (context, url, error) =>
-                    Container(color: AppColors.surface),
+          // 1. Dynamic Background Layer
+          _buildCinematicBackground(movie),
+          
+          RefreshIndicator(
+            onRefresh: _handleRefresh,
+            backgroundColor: AppColors.surface,
+            color: _accentColor,
+            child: CustomScrollView(
+              key: PageStorageKey('detail_${widget.movie.id}'),
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
               ),
-            ),
-          ),
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: const [0.4, 1.0],
-                  colors: [Colors.transparent, AppColors.background],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            top: 40,
-            left: 20,
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: AppColors.surface.withOpacity(0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.arrow_back_ios_new,
-                    color: Colors.white, size: 16),
-              ),
-            ),
-          ),
-          Positioned(
-            left: 20,
-            bottom: 20,
-            right: 20,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: movie.genres
-                      .map((g) => Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: AppColors.surface,
-                              borderRadius: BorderRadius.circular(4),
-                              border:
-                                  Border.all(color: AppColors.borderDefault),
-                            ),
-                            child: Text(
-                              g.toUpperCase(),
-                              style: GoogleFonts.dmSans(
-                                color: AppColors.textSecondary,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ))
-                      .toList(),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  movie.title,
-                  style: GoogleFonts.playfairDisplay(
-                    color: Colors.white,
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    height: 1.1,
+              slivers: [
+                _buildSliverHeader(movie),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 32),
+                        _buildCinematicMetaGrid(movie),
+                        const SizedBox(height: 40),
+                        _buildTabs(),
+                        const SizedBox(height: 32),
+                        if (_selectedTab == 0)
+                          _buildDetailsTab(movie)
+                        else if (_selectedTab == 1)
+                          _buildReviewsTab()
+                        else
+                          _buildSoundtrackTab(movie),
+                      ],
+                    ),
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
+
         ],
+      ),
+    );
+  }
+
+  Widget _buildCinematicBackground(Movie movie) {
+    return Positioned.fill(
+      child: Stack(
+        children: [
+          Hero(
+            tag: (widget.heroTag?.startsWith('daily_') ?? false) || (widget.heroTag?.startsWith('spotlight_') ?? false)
+                ? widget.heroTag!
+                : 'movie_bg_${movie.id}',
+            child: CachedNetworkImage(
+              imageUrl: movie.backdropPath,
+              fit: BoxFit.cover,
+            ),
+          ),
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+            child: Container(
+              color: Colors.black.withOpacity(0.6),
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.black.withOpacity(0.8),
+                  Colors.black,
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCinematicMetaGrid(Movie movie) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _buildMetaItem('DURATION', movie.runtime.isNotEmpty ? movie.runtime : '--'),
+        _buildMetaItem('RELEASE', movie.releaseDate.split('-').first),
+        _buildMetaItem('RATING', movie.rating.toString()),
+        _buildMetaItem('AGE', movie.ageRating.isNotEmpty ? movie.ageRating : 'NR'),
+      ],
+    );
+  }
+
+  Widget _buildMetaItem(String label, String value) {
+    return Column(
+      children: [
+        Text(label, style: GoogleFonts.dmSans(color: Colors.white38, fontSize: 8, fontWeight: FontWeight.w900, letterSpacing: 1)),
+        const SizedBox(height: 8),
+        Text(value, style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
+      ],
+    );
+  }
+
+  Widget _buildSliverHeader(Movie movie) {
+    return SliverAppBar(
+      expandedHeight: 400,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      pinned: true,
+      leading: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: CircleAvatar(
+          backgroundColor: Colors.black26,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+      ),
+      flexibleSpace: FlexibleSpaceBar(
+        background: Stack(
+          children: [
+            Positioned.fill(
+              child: Hero(
+                tag: (widget.heroTag?.startsWith('daily_') ?? false) || (widget.heroTag?.startsWith('spotlight_') ?? false)
+                    ? 'movie_poster_${movie.id}'
+                    : widget.heroTag ?? 'movie_${movie.id}',
+                child: CachedNetworkImage(
+                  imageUrl: movie.posterPath,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            if (_isTrailerReady && _youtubeController != null)
+              Positioned.fill(
+                child: YoutubePlayer(
+                  controller: _youtubeController!,
+                  showVideoProgressIndicator: true,
+                  progressIndicatorColor: _accentColor,
+                  progressColors: ProgressBarColors(
+                    playedColor: _accentColor,
+                    handleColor: _accentColor,
+                  ),
+                  bottomActions: [
+                    const SizedBox(width: 14.0),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 50.0),
+                      child: CurrentPosition(),
+                    ),
+                    const SizedBox(width: 8.0),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 50.0),
+                        child: ProgressBar(
+                          isExpanded: true,
+                          colors: ProgressBarColors(
+                            playedColor: _accentColor,
+                            handleColor: _accentColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 50.0),
+                      child: const PlaybackSpeedButton(),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 50.0),
+                      child: FullScreenButton(),
+                    ),
+                  ],
+                ),
+              ),
+            Positioned.fill(
+              child: IgnorePointer(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      stops: const [0.5, 0.8, 1.0],
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.6),
+                        Colors.black,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: 40,
+              left: 24,
+              right: 24,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    movie.title.toUpperCase(),
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 40,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      height: 0.9,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: movie.genres.take(3).map((g) => Container(
+                      margin: const EdgeInsets.only(right: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white30),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(g, style: GoogleFonts.dmSans(fontSize: 9, color: Colors.white70, fontWeight: FontWeight.bold)),
+                    )).toList(),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -602,45 +733,38 @@ class _DetailScreenState extends State<DetailScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'SYNOPSIS',
-              style: GoogleFonts.dmSans(
-                color: AppColors.textMuted,
-                fontSize: 10,
-                letterSpacing: 2,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
         Text(
-          movie.overview,
-          maxLines: _isExpanded ? null : 4,
-          overflow:
-              _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+          'SYNOPSIS',
           style: GoogleFonts.dmSans(
-            color: AppColors.textSecondary,
-            fontSize: 14,
-            height: 1.7,
-          ),
-        ),
-        const SizedBox(height: 8),
-        GestureDetector(
-          onTap: () => setState(() => _isExpanded = !_isExpanded),
-          child: Text(
-            _isExpanded ? 'Read less' : 'Read more',
-            style: GoogleFonts.dmSans(
-              color: _accentColor,
-              fontSize: 13,
-              fontWeight: FontWeight.bold,
-            ),
+            color: Colors.white38,
+            fontSize: 10,
+            letterSpacing: 3,
+            fontWeight: FontWeight.w900,
           ),
         ),
         const SizedBox(height: 16),
+        Text(
+          movie.overview,
+          maxLines: _isExpanded ? null : 4,
+          style: GoogleFonts.dmSans(
+            color: Colors.white,
+            fontSize: 15,
+            height: 1.8,
+          ),
+        ),
+        const SizedBox(height: 12),
+        GestureDetector(
+          onTap: () => setState(() => _isExpanded = !_isExpanded),
+          child: Text(
+            _isExpanded ? 'READ LESS' : 'READ FULL STORY',
+            style: GoogleFonts.dmSans(
+              color: _accentColor,
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1,
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -652,44 +776,34 @@ class _DetailScreenState extends State<DetailScreen> {
         Text(
           'CONTENT ADVISORY',
           style: GoogleFonts.dmSans(
-            color: AppColors.textMuted,
+            color: Colors.white38,
             fontSize: 10,
-            letterSpacing: 2,
-            fontWeight: FontWeight.bold,
+            letterSpacing: 3,
+            fontWeight: FontWeight.w900,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         ...movie.contentWarnings
-            .map((warning) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: ExpansionTileTheme(
-                    data: const ExpansionTileThemeData(),
-                    child: ExpansionTile(
-                      title: Text(
-                        warning.category,
-                        style: GoogleFonts.dmSans(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
+            .map((warning) => Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        warning.category.toUpperCase(),
+                        style: GoogleFonts.dmSans(color: _accentColor, fontSize: 10, fontWeight: FontWeight.w900),
                       ),
-                      backgroundColor: AppColors.surface,
-                      collapsedBackgroundColor: AppColors.surface,
-                      children: [
-                        Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                          child: Text(
-                            warning.description,
-                            style: GoogleFonts.dmSans(
-                              color: AppColors.textSecondary,
-                              fontSize: 13,
-                              height: 1.5,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      const SizedBox(height: 8),
+                      Text(
+                        warning.description,
+                        style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13, height: 1.5),
+                      ),
+                    ],
                   ),
                 ))
             .toList(),
@@ -704,19 +818,18 @@ class _DetailScreenState extends State<DetailScreen> {
         Text(
           'TOP CAST',
           style: GoogleFonts.dmSans(
-            color: AppColors.textMuted,
+            color: Colors.white38,
             fontSize: 10,
-            letterSpacing: 2,
-            fontWeight: FontWeight.bold,
+            letterSpacing: 3,
+            fontWeight: FontWeight.w900,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         SizedBox(
-          height: 120,
+          height: 160,
           child: ListView.builder(
             physics: const BouncingScrollPhysics(),
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: movie.cast.length,
             itemBuilder: (context, index) {
               final actor = movie.cast[index];
@@ -724,30 +837,34 @@ class _DetailScreenState extends State<DetailScreen> {
                 onTap: () =>
                     _safeNavigate(ActorDetailScreen(actorId: actor.id)),
                 child: Container(
-                  width: 80,
-                  margin: const EdgeInsets.only(right: 16),
+                  width: 100,
+                  margin: const EdgeInsets.only(right: 20),
                   child: Column(
                     children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundColor: AppColors.surface,
-                        backgroundImage: actor.profilePath.isNotEmpty
-                            ? CachedNetworkImageProvider(actor.profilePath)
-                            : null,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          height: 100,
+                          width: 100,
+                          decoration: BoxDecoration(
+                            color: Colors.white10,
+                            image: actor.profilePath.isNotEmpty
+                                ? DecorationImage(image: CachedNetworkImageProvider(actor.profilePath), fit: BoxFit.cover)
+                                : null,
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       Text(
                         actor.name,
-                        style: GoogleFonts.dmSans(
-                            color: Colors.white, fontSize: 11),
+                        style: GoogleFonts.dmSans(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                         textAlign: TextAlign.center,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         actor.character,
-                        style: GoogleFonts.dmSans(
-                            color: AppColors.textMuted, fontSize: 10),
+                        style: GoogleFonts.dmSans(color: Colors.white38, fontSize: 10),
                         textAlign: TextAlign.center,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -1041,6 +1158,7 @@ class _DetailScreenState extends State<DetailScreen> {
         children: [
           _buildTabItem(0, 'DETAILS'),
           _buildTabItem(1, 'REVIEWS'),
+          _buildTabItem(2, 'SOUNDTRACK'),
         ],
       ),
     );
@@ -1241,6 +1359,15 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSoundtrackTab(Movie movie) {
+    return SongsSection(
+      mediaId: movie.id,
+      title: movie.title,
+      isAnime: false,
+      isMovie: movie.isMovie,
     );
   }
 }

@@ -23,10 +23,28 @@ class UserDataProvider extends ChangeNotifier {
     _loadData();
   }
 
+  void clearData() {
+    _favoriteGenres.clear();
+    _favoriteActors.clear();
+    _pfpUrl = null;
+    _onboardingDone = false;
+    notifyListeners();
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.remove(_genresKey);
+      prefs.remove(_actorsKey);
+      prefs.remove(_pfpKey);
+      prefs.remove(_onboardingKey);
+    });
+  }
+
   void setUserId(String? userId) {
-    _currentUserId = userId;
-    if (userId != null) {
-      syncFromAppwrite();
+    if (_currentUserId != userId) {
+      _currentUserId = userId;
+      if (userId != null) {
+        syncFromAppwrite();
+      } else {
+        clearData();
+      }
     }
   }
 

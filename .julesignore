@@ -1,0 +1,23 @@
+# Ignore build artifacts
+build/
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub/
+.pub-cache/
+
+# Ignore IDE settings
+.idea/
+*.iml
+.vscode/
+
+# Ignore sensitive files (already in .gitignore but being safe)
+.env
+.env.*
+
+# Ignore logs
+*.log
+
+# Ignore OS files
+.DS_Store
+Thumbs.db

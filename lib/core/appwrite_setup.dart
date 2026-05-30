@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:dart_appwrite/dart_appwrite.dart';
 import 'package:dart_appwrite/models.dart' as models;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:watch_track/core/appwrite_constants.dart';
 
 class AppwriteSchemaManager {
@@ -17,9 +19,13 @@ class AppwriteSchemaManager {
     databases = Databases(client);
   }
 
-  static const String _apiKey = String.fromEnvironment('APPWRITE_API_KEY');
+  static final String _apiKey = dotenv.get('APPWRITE_API_KEY', fallback: '');
 
   static Future<void> setupIfAvailable() async {
+    if (kIsWeb) {
+      print('ℹ️ Appwrite schema setup is not supported on Web. Skipping.');
+      return;
+    }
     if (_apiKey.isEmpty) {
       print('ℹ️ Appwrite API key not found in environment. Skipping automatic schema setup.');
       return;

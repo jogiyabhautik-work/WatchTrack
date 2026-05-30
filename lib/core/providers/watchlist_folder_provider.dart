@@ -77,10 +77,20 @@ class WatchlistFolderProvider extends ChangeNotifier {
     }
   }
 
+  void clearData() {
+    _folders.clear();
+    notifyListeners();
+    SharedPreferences.getInstance().then((prefs) => prefs.remove(_storageKey));
+  }
+
   void setUserId(String? userId) {
-    _currentUserId = userId;
-    if (userId != null) {
-      syncFromAppwrite();
+    if (_currentUserId != userId) {
+      _currentUserId = userId;
+      if (userId != null) {
+        syncFromAppwrite();
+      } else {
+        clearData();
+      }
     }
   }
 

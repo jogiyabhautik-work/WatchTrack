@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:watch_track/core/constants/app_colors.dart';
@@ -6,6 +7,7 @@ import 'package:watch_track/data/models/movie_model.dart';
 import 'package:watch_track/back-end/api_service.dart';
 import 'package:watch_track/presentation/screens/anime/anime_home_screen.dart';
 import 'package:watch_track/presentation/screens/anime/anime_detail_screen.dart';
+import 'package:watch_track/presentation/widgets/anime/manga_panel_painter.dart';
 
 class AnimeActorDetailScreen extends StatefulWidget {
   final String actorId;
@@ -58,53 +60,111 @@ class _AnimeActorDetailScreenState extends State<AnimeActorDetailScreen> {
 
     return Scaffold(
       backgroundColor: AnimeColors.background,
-      body: RefreshIndicator(
-        onRefresh: _handleRefresh,
-        backgroundColor: AnimeColors.background,
-        color: AnimeColors.accent,
-        child: CustomScrollView(
-          physics: const AlwaysScrollableScrollPhysics(
-            parent: BouncingScrollPhysics(),
-          ),
-          slivers: [
-            _buildSliverHeader(_actor!),
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 32),
-                    Text(
-                      _actor!.name.toUpperCase(),
-                      style: GoogleFonts.stixTwoText(
-                        color: AnimeColors.textPrimary,
-                        fontSize: 36,
-                        fontWeight: FontWeight.w900,
-                      ),
+      body: Stack(
+        children: [
+          _buildScreentoneBackground(),
+          RefreshIndicator(
+            onRefresh: _handleRefresh,
+            backgroundColor: AnimeColors.background,
+            color: AnimeColors.actionRed,
+            child: CustomScrollView(
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
+              slivers: [
+                _buildSliverHeader(_actor!),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 32),
+                        _buildProfileInfo(_actor!),
+                        const SizedBox(height: 32),
+                        _buildBiography(_actor!),
+                        const SizedBox(height: 48),
+                        _buildMangaPanel('NOTABLE WORKS / 代表作', _actor!.movieCredits),
+                        const SizedBox(height: 100),
+                      ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'VOICE ACTOR / 声優',
-                      style: GoogleFonts.dmSans(
-                        color: AnimeColors.textSecondary,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 2,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    _buildBiography(_actor!),
-                    const SizedBox(height: 40),
-                    _buildMangaPanel('NOTABLE WORKS', _actor!.movieCredits),
-                    const SizedBox(height: 60),
-                  ],
+                  ),
                 ),
+              ],
+            ),
+          ),
+          _buildBottomIndicator(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildScreentoneBackground() {
+    return Positioned.fill(
+      child: CustomPaint(
+        painter: MangaPanelPainter(
+          showScreentone: true,
+          screentoneColor: AnimeColors.screentone.withOpacity(0.03),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBottomIndicator() {
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: Container(
+        height: 2,
+        color: AnimeColors.border,
+      ),
+    );
+  }
+
+  Widget _buildProfileInfo(Actor actor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              color: AnimeColors.actionRed,
+              child: Text(
+                'ACTOR PROFILE',
+                style: GoogleFonts.dmSans(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 2,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              '声優',
+              style: GoogleFonts.dmSans(
+                color: Colors.black45,
+                fontSize: 14,
+                fontWeight: FontWeight.w900,
               ),
             ),
           ],
         ),
-      ),
+        const SizedBox(height: 16),
+        Text(
+          actor.name.toUpperCase(),
+          style: GoogleFonts.stixTwoText(
+            fontSize: 48,
+            fontWeight: FontWeight.w900,
+            height: 0.9,
+            letterSpacing: -1,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(height: 6, width: 100, color: Colors.black),
+      ],
     );
   }
 
@@ -114,18 +174,46 @@ class _AnimeActorDetailScreenState extends State<AnimeActorDetailScreen> {
       backgroundColor: AnimeColors.background,
       elevation: 0,
       pinned: true,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios_new, color: AnimeColors.accent),
-        onPressed: () => Navigator.pop(context),
+      leading: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: CircleAvatar(
+          backgroundColor: Colors.white,
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black, size: 20),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
       ),
       flexibleSpace: FlexibleSpaceBar(
-        background: CachedNetworkImage(
-          imageUrl: actor.profilePath,
-          fit: BoxFit.cover,
-          errorWidget: (context, url, error) => Container(
-            color: AnimeColors.surface,
-            child: const Icon(Icons.person, color: AnimeColors.accent, size: 50),
-          ),
+        background: Stack(
+          children: [
+            Positioned.fill(
+              child: CachedNetworkImage(
+                imageUrl: actor.profilePath,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Positioned.fill(
+              child: CustomPaint(
+                painter: _SpeedLinesPainter(),
+              ),
+            ),
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.3),
+                      AnimeColors.background,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -136,27 +224,26 @@ class _AnimeActorDetailScreenState extends State<AnimeActorDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'BIOGRAPHY',
+          'THE LEGEND',
           style: GoogleFonts.dmSans(
-            color: AnimeColors.textPrimary,
-            fontSize: 14,
+            color: Colors.black,
+            fontSize: 16,
             fontWeight: FontWeight.w900,
             letterSpacing: 3,
           ),
         ),
         const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            border: Border.all(color: AnimeColors.border, width: 2),
-            color: AnimeColors.surface,
-          ),
-          child: Text(
-            actor.biography.isNotEmpty ? actor.biography : 'No biography available.',
-            style: GoogleFonts.dmSans(
-              color: AnimeColors.textPrimary,
-              fontSize: 14,
-              height: 1.6,
+        MangaPanel(
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            color: Colors.white,
+            child: Text(
+              actor.biography.isNotEmpty ? actor.biography : 'THE STORY IS YET TO BE WRITTEN...',
+              style: GoogleFonts.dmSans(
+                color: Colors.black,
+                fontSize: 15,
+                height: 1.6,
+              ),
             ),
           ),
         ),
@@ -171,15 +258,15 @@ class _AnimeActorDetailScreenState extends State<AnimeActorDetailScreen> {
         Text(
           title,
           style: GoogleFonts.dmSans(
-            color: AnimeColors.textPrimary,
-            fontSize: 14,
+            color: Colors.black,
+            fontSize: 16,
             fontWeight: FontWeight.w900,
             letterSpacing: 3,
           ),
         ),
         const SizedBox(height: 24),
         SizedBox(
-          height: 240,
+          height: 280,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
@@ -189,36 +276,29 @@ class _AnimeActorDetailScreenState extends State<AnimeActorDetailScreen> {
               return GestureDetector(
                 onTap: () => Navigator.push(context, MaterialPageRoute(builder: (ctx) => AnimeDetailScreen(movie: movie))),
                 child: Container(
-                  width: 140,
-                  margin: const EdgeInsets.only(right: 16),
+                  width: 160,
+                  margin: const EdgeInsets.only(right: 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: AnimeColors.border, width: 2),
-                          ),
+                        child: MangaPanel(
                           child: CachedNetworkImage(
                             imageUrl: movie.posterPath,
                             fit: BoxFit.cover,
                             width: double.infinity,
-                            errorWidget: (context, url, error) => Container(
-                              color: AnimeColors.surface,
-                              child: const Icon(Icons.movie_outlined, color: AnimeColors.accent),
-                            ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 16),
                       Text(
                         movie.title.toUpperCase(),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.stixTwoText(
-                          color: AnimeColors.textPrimary,
-                          fontSize: 11,
+                          fontSize: 13,
                           fontWeight: FontWeight.w900,
+                          height: 1.1,
                         ),
                       ),
                     ],
@@ -231,4 +311,27 @@ class _AnimeActorDetailScreenState extends State<AnimeActorDetailScreen> {
       ],
     );
   }
+}
+
+class _SpeedLinesPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.2)
+      ..strokeWidth = 1.0;
+
+    final random = math.Random(42);
+    for (int i = 0; i < 30; i++) {
+      double angle = random.nextDouble() * 2 * math.pi;
+      double length = random.nextDouble() * 200 + 100;
+      double startX = size.width / 2 + math.cos(angle) * (size.width / 4);
+      double startY = size.height / 2 + math.sin(angle) * (size.height / 3);
+      double endX = startX + math.cos(angle) * length;
+      double endY = startY + math.sin(angle) * length;
+      canvas.drawLine(Offset(startX, startY), Offset(endX, endY), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

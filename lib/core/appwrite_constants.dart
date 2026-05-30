@@ -1,7 +1,9 @@
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 class AppwriteConstants {
-  static const String databaseId = '69f8723d002cda40379e';
-  static const String endpoint = 'https://sgp.cloud.appwrite.io/v1';
-  static const String projectId = '693d20f1002b63c1bffd';
+  static String get databaseId => dotenv.get('APPWRITE_DATABASE_ID', fallback: '69f8723d002cda40379e');
+  static String get endpoint => dotenv.get('APPWRITE_ENDPOINT', fallback: 'https://sgp.cloud.appwrite.io/v1');
+  static String get projectId => dotenv.get('APPWRITE_PROJECT_ID', fallback: '693d20f1002b63c1bffd');
 
   // Collection IDs
   static const String trackingCollectionId = 'tracking';

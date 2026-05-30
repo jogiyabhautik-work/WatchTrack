@@ -13,7 +13,9 @@ import 'package:watch_track/presentation/screens/detail/detail_screen.dart';
 import 'package:watch_track/presentation/widgets/movie_card.dart';
 
 class SearchScreen extends StatefulWidget {
-  const SearchScreen({super.key});
+  final String? initialQuery;
+  final String? initialFilter;
+  const SearchScreen({super.key, this.initialQuery, this.initialFilter});
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -51,10 +53,30 @@ class _SearchScreenState extends State<SearchScreen> {
     'Thriller': [const Color(0xFF0D0000), const Color(0xFF4D0000)],
   };
 
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.initialFilter != null) {
+      _selectedFilter = widget.initialFilter!;
+    }
+    
+    _focusNode.addListener(() {
+      setState(() {}); // Rebuild to show/hide suggestions overlay
+    });
+
+    if (widget.initialQuery != null) {
+      _controller.text = widget.initialQuery!;
+      _performSearch(widget.initialQuery!);
+    }
+  }
+
   @override
   void dispose() {
     _debounce?.cancel();
     _controller.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -351,13 +373,15 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 16),
-                  Text(
+            child: Stack(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 16),
+                      Text(
                     'Discover',
                     style: GoogleFonts.playfairDisplay(
                       color: Colors.white,
@@ -368,6 +392,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   const SizedBox(height: 12),
                   // Search Bar
                   TextField(
+                    focusNode: _focusNode,
                     controller: _controller,
                     onChanged: _onSearch,
                     style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
@@ -429,8 +454,70 @@ class _SearchScreenState extends State<SearchScreen> {
                 ],
               ),
             ),
+            if (_controller.text.isNotEmpty && _focusNode.hasFocus)
+                  Positioned(
+                    top: 100,
+                    left: 20,
+                    right: 20,
+                    bottom: 0,
+                    child: _buildSuggestionsOverlay(),
+                  ),
+              ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSuggestionsOverlay() {
+    if (_isTyping || _isLoading) {
+      return Container(
+        margin: const EdgeInsets.only(top: 4),
+        decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(12)),
+        child: const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+      );
+    }
+    if (_results.isEmpty) return const SizedBox.shrink();
+    
+    return Container(
+      margin: const EdgeInsets.only(top: 4),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.borderDefault),
+        boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 10, offset: Offset(0, 5))],
+      ),
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        itemCount: _results.length,
+        itemBuilder: (context, index) {
+          final movie = _results[index];
+          return ListTile(
+            leading: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: CachedNetworkImage(
+                imageUrl: movie.posterPath,
+                width: 40,
+                height: 60,
+                fit: BoxFit.cover,
+                errorWidget: (context, url, error) => Container(width: 40, height: 60, color: AppColors.surface2),
+              ),
+            ),
+            title: Text(movie.title, style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14)),
+            subtitle: Text(
+              movie.releaseDate.split('-').first,
+              style: GoogleFonts.dmSans(color: AppColors.textMuted, fontSize: 12),
+            ),
+            onTap: () {
+              _focusNode.unfocus();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => DetailScreen(movie: movie, heroTag: 'sug_${movie.id}')),
+              );
+            },
+          );
+        },
       ),
     );
   }

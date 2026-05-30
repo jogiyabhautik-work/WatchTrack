@@ -24,11 +24,15 @@ class MyHttpOverrides extends HttpOverrides {
 /// - attributes.read, attributes.write
 /// - indexes.read, indexes.write
 
-const String endpoint = 'https://sgp.cloud.appwrite.io/v1';
-const String projectId = '693d20f1002b63c1bffd';
-const String apiKey = 'standard_1fb3ea22b9af7e82f7d21e68cb1f42235c86cdc726a13cb16f3160d5a7112db960f76affc55e62a4f9b40fafa1dfc4d9f33daee7c91ae4470f32136e94185d244b1ca7bd6ff1d657f214d28cb8f0641e58541385956145fc0d3e160e469776248c6b20a828eaa27763d2b4d980a50f7d4118be33cd5d09887381adafe2d9eab5'; // <--- PASTE YOUR API KEY HERE
+String getEnv(String key, String defaultValue) {
+  return Platform.environment[key] ?? defaultValue;
+}
 
-const String dbId = '69f8723d002cda40379e';
+final String endpoint = getEnv('APPWRITE_ENDPOINT', 'https://sgp.cloud.appwrite.io/v1');
+final String projectId = getEnv('APPWRITE_PROJECT_ID', '693d20f1002b63c1bffd');
+final String apiKey = getEnv('APPWRITE_API_KEY', 'YOUR_API_KEY');
+
+final String dbId = getEnv('APPWRITE_DATABASE_ID', '69f8723d002cda40379e');
 const String trackingCollId = 'tracking';
 const String foldersCollId = 'folders';
 const String userPrefsCollId = 'user_prefs';

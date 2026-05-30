@@ -76,11 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
-                    child: Image.asset(
-                      'assets/logo/logo.png',
-                      width: 100,
-                      height: 100,
-                    ),
+                    child: const Icon(Icons.movie_creation_rounded, color: Colors.white, size: 80),
                   ),
                 ),
                 const SizedBox(height: 16),

@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:watch_track/data/models/movie_model.dart';
 import 'package:watch_track/core/cache_manager.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart' show DefaultCacheManager;
 
 class ApiService {
-  static const String _apiKey = 'd8321184d9f16ddb2006175e7032fcd5';
+  static final String _apiKey = dotenv.get('TMDB_API_KEY', fallback: '');
   static const String _baseUrl = 'https://api.themoviedb.org/3';
 
   Future<http.Response?> _safeGet(String url) async {

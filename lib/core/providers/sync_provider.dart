@@ -18,10 +18,26 @@ class SyncProvider extends ChangeNotifier {
   Timer? _debounceTimer;
   StreamSubscription? _connectivitySubscription;
   bool _isOnline = true;
+  String? _currentUserId;
 
   SyncProvider() {
     _loadQueue();
     _initConnectivity();
+  }
+
+  void setUserId(String? userId) {
+    if (_currentUserId != userId) {
+      _currentUserId = userId;
+      if (userId == null) {
+        clearQueue();
+      }
+    }
+  }
+
+  void clearQueue() {
+    _queue.clear();
+    notifyListeners();
+    SharedPreferences.getInstance().then((prefs) => prefs.remove(_queueKey));
   }
 
   List<SyncAction> get queue => _queue;

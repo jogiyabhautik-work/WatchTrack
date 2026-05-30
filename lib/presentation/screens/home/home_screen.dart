@@ -18,7 +18,9 @@ import 'package:watch_track/core/appwrite_client.dart';
 import 'package:watch_track/core/providers/tracking_provider.dart';
 import 'package:watch_track/presentation/screens/home/see_all_screen.dart';
 import 'package:watch_track/presentation/screens/profile/profile_screen.dart';
+import 'package:watch_track/presentation/screens/watchlist/watchlist_screen.dart';
 import 'package:watch_track/presentation/widgets/watchlist_action_sheet.dart';
+import 'package:watch_track/presentation/widgets/binge_planner.dart';
 import 'package:watch_track/presentation/screens/anime/anime_home_screen.dart';
 
 
@@ -60,8 +62,26 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _safeNavigate(Widget screen) async {
     if (_isNavigating) return;
     _isNavigating = true;
-    await Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
-    _isNavigating = false;
+    try {
+      await Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => screen,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: ScaleTransition(
+                scale: animation.drive(Tween(begin: 0.95, end: 1.0).chain(CurveTween(curve: Curves.easeOutCubic))),
+                child: child,
+              ),
+            );
+          },
+          transitionDuration: const Duration(milliseconds: 400),
+        ),
+      );
+    } finally {
+      _isNavigating = false;
+    }
   }
 
   @override
@@ -168,7 +188,19 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(height: 40),
 
                               // SECTION: QUICK DISCOVERY
-                              _buildQuickDiscoverySection(),
+                              _buildLuxuryDiscoverySection(),
+
+                              const SizedBox(height: 40),
+
+                              // SECTION: SPOTLIGHT (NEW)
+                              if (recProvider.topPicks.isNotEmpty)
+                                _buildSpotlightHero(recProvider.topPicks.first),
+
+                              const SizedBox(height: 40),
+
+                              // SECTION: DAILY PICKS (NEW)
+                              if (recProvider.topPicks.length > 3)
+                                _buildDailyPicksSection(recProvider.topPicks.skip(1).take(3).toList()),
 
                               const SizedBox(height: 40),
 
@@ -346,14 +378,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildQuickDiscoverySection() {
+  Widget _buildLuxuryDiscoverySection() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
-            'QUICK DISCOVERY',
+            'FOR YOUR CONSIDERATION',
             style: GoogleFonts.dmSans(
               color: AppColors.textMuted,
               fontSize: 10,
@@ -364,37 +396,240 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 16),
         SizedBox(
-          height: 80,
+          height: 120,
           child: ListView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             physics: const BouncingScrollPhysics(),
             children: [
-              _buildDiscoveryCard(
-                'Mood Picker',
-                'Feeling scary?',
-                Icons.emoji_emotions_outlined,
-                AppColors.primary,
-                () => _showMoodPicker(),
-              ),
-              _buildDiscoveryCard(
-                'Surprise Me',
-                'One tap pick',
-                Icons.casino_outlined,
-                Colors.deepPurple,
-                () => _pickRandomMovie(),
-              ),
-              _buildDiscoveryCard(
-                'Binge Planner',
-                'Finish it this weekend',
-                Icons.calendar_today_outlined,
-                Colors.orange,
-                () => _showBingePlanner(),
-              ),
+              _buildLuxuryMoodCard('MOOD PICKER', 'FEELING SCARY?', Colors.orange, Icons.waves, _showMoodPicker),
+              _buildLuxuryMoodCard('BINGE PLAN', 'WEEKEND GOALS', Colors.purple, Icons.event_note, _showBingePlanner),
+              _buildLuxuryMoodCard('SURPRISE', 'ROLL THE DICE', Colors.blue, Icons.casino, _pickRandomMovie),
             ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildLuxuryMoodCard(String title, String sub, Color color, IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 140,
+        margin: const EdgeInsets.only(right: 16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [color.withOpacity(0.2), color.withOpacity(0.05)],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withOpacity(0.3), width: 1),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: color, size: 24),
+            const Spacer(),
+            Text(title, style: GoogleFonts.dmSans(fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1)),
+            Text(sub, style: GoogleFonts.dmSans(fontSize: 8, color: AppColors.textMuted)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDailyPicksSection(List<Movie> movies) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Row(
+            children: [
+              Text(
+                'THE DAILY THREE',
+                style: GoogleFonts.dmSans(
+                  color: AppColors.textMuted,
+                  fontSize: 10,
+                  letterSpacing: 2,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  'EDITOR\'S CHOICE',
+                  style: GoogleFonts.dmSans(color: AppColors.primary, fontSize: 8, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          height: 180,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: movies.length,
+            itemBuilder: (context, index) {
+              final movie = movies[index];
+              final heroTag = 'daily_${movie.id}';
+              return GestureDetector(
+                onTap: () => _safeNavigate(DetailScreen(movie: movie, heroTag: heroTag)),
+                child: Container(
+                  width: 300,
+                  margin: const EdgeInsets.only(right: 16),
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Hero(
+                            tag: heroTag,
+                            child: CachedNetworkImage(
+                              imageUrl: movie.backdropPath,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned.fill(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            gradient: LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                              colors: [
+                                Colors.black.withOpacity(0.8),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 16,
+                        left: 16,
+                        right: 16,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              movie.title,
+                              style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              movie.genres.join(' · '),
+                              style: GoogleFonts.dmSans(color: Colors.white60, fontSize: 10),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSpotlightHero(Movie movie) {
+    final heroTag = 'spotlight_${movie.id}';
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      height: 220,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Hero(
+                tag: heroTag,
+                child: CachedNetworkImage(
+                  imageUrl: movie.backdropPath,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [
+                    Colors.black.withOpacity(0.9),
+                    Colors.black.withOpacity(0.4),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(
+                    'SPOTLIGHT',
+                    style: GoogleFonts.dmSans(fontSize: 9, fontWeight: FontWeight.w900, color: Colors.white),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: 180,
+                  child: Text(
+                    movie.title.toUpperCase(),
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 1,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () => _safeNavigate(DetailScreen(movie: movie, heroTag: heroTag)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+                  child: Text('VIEW NOW', style: GoogleFonts.dmSans(fontWeight: FontWeight.bold, fontSize: 11)),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -637,10 +872,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _showBingePlanner() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Binge Planner: Feature coming in next update!', style: GoogleFonts.dmSans()),
-        backgroundColor: AppColors.primary,
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => const Padding(
+        padding: EdgeInsets.only(top: 100),
+        child: BingePlannerWidget(),
       ),
     );
   }

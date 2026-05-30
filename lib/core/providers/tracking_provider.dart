@@ -21,6 +21,12 @@ class TrackingProvider extends ChangeNotifier {
     _loadData();
   }
 
+  void clearData() {
+    _trackedTitles.clear();
+    notifyListeners();
+    SharedPreferences.getInstance().then((prefs) => prefs.remove(_storageKey));
+  }
+
   void setUserId(String? userId) {
     if (_currentUserId != userId) {
       _currentUserId = userId;
@@ -29,6 +35,8 @@ class TrackingProvider extends ChangeNotifier {
            syncPendingItems();
            migrateFromLegacy();
         });
+      } else {
+        clearData();
       }
     }
   }

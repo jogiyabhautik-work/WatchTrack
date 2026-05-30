@@ -1538,95 +1538,108 @@ class _FolderCard extends StatelessWidget {
       onLongPress: () => _showMenu(context),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-              color: Colors.white.withOpacity(0.08), width: 1),
-        ),
-        child: Stack(
-          children: [
-            // Poster grid background
-            if (movies.isNotEmpty)
-              Positioned.fill(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
-                  child: _PosterGrid(movies: movies),
-                ),
-              ),
-
-            // Dark overlay
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withOpacity(0.3),
-                      Colors.black.withOpacity(0.75),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-
-            // Content
-            Positioned(
-              left: 14,
-              right: 14,
-              bottom: 14,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    folder.emoji,
-                    style: const TextStyle(fontSize: 26),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    folder.name,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.2,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '$movieCount title${movieCount == 1 ? '' : 's'}',
-                    style: TextStyle(
-                        color: Colors.white.withOpacity(0.55),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500),
-                  ),
-                ],
-              ),
-            ),
-
-            // Options
-            Positioned(
-              top: 8,
-              right: 8,
-              child: GestureDetector(
-                onTap: () => _showMenu(context),
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.4),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.more_vert_rounded,
-                      color: Colors.white.withOpacity(0.7), size: 16),
-                ),
-              ),
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
           ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
+            children: [
+              // Poster collage background
+              if (movies.isNotEmpty)
+                Positioned.fill(
+                  child: _MagazineCollage(movies: movies),
+                ),
+
+              // Glassmorphic Overlay
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.2),
+                        Colors.black.withOpacity(0.8),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+              // Content
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 16,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white24),
+                      ),
+                      child: Text(
+                        folder.emoji,
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      folder.name.toUpperCase(),
+                      style: GoogleFonts.playfairDisplay(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '$movieCount TITLES',
+                      style: GoogleFonts.dmSans(
+                        color: AppColors.primary,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Options
+              Positioned(
+                top: 12,
+                right: 12,
+                child: GestureDetector(
+                  onTap: () => _showMenu(context),
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.black38,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.more_horiz_rounded, color: Colors.white, size: 18),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1654,48 +1667,70 @@ class _FolderCard extends StatelessWidget {
   }
 }
 
-class _PosterGrid extends StatelessWidget {
+class _MagazineCollage extends StatelessWidget {
   final List<UserTitle> movies;
-  const _PosterGrid({required this.movies});
-
+  const _MagazineCollage({required this.movies});
 
   @override
   Widget build(BuildContext context) {
-    if (movies.length == 1) {
-      return _poster(movies[0]);
-    }
-    return GridView.count(
-      crossAxisCount: 2,
-      physics: const NeverScrollableScrollPhysics(),
-      padding: EdgeInsets.zero,
-      mainAxisSpacing: 1,
-      crossAxisSpacing: 1,
-      children: movies
-          .take(4)
-          .map((m) => _poster(m))
-          .toList(),
+    if (movies.length == 1) return _poster(movies[0]);
+    
+    return Stack(
+      children: [
+        Positioned.fill(child: _poster(movies[0])),
+        if (movies.length > 1)
+          Positioned(
+            right: -20,
+            bottom: -20,
+            child: Transform.rotate(
+              angle: 0.2,
+              child: Container(
+                width: 100,
+                height: 150,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [BoxShadow(color: Colors.black45, blurRadius: 10)],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: _poster(movies[1]),
+                ),
+              ),
+            ),
+          ),
+        if (movies.length > 2)
+          Positioned(
+            left: -10,
+            top: 20,
+            child: Transform.rotate(
+              angle: -0.1,
+              child: Container(
+                width: 60,
+                height: 90,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [BoxShadow(color: Colors.black38, blurRadius: 8)],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: _poster(movies[2]),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
   Widget _poster(UserTitle m) {
-
-    if (m.posterPath == null || m.posterPath.isEmpty) {
-      return Container(
-        color: Colors.white.withOpacity(0.05),
-        child: Icon(Icons.movie_outlined,
-            color: Colors.white.withOpacity(0.15)),
-      );
-    }
     final url = m.posterPath.startsWith('http') 
         ? m.posterPath 
         : 'https://image.tmdb.org/t/p/w200${m.posterPath}';
-    return Image.network(
-      url,
+    return CachedNetworkImage(
+      imageUrl: url,
       fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) => Container(
-        color: Colors.white.withOpacity(0.05),
-        child: const Icon(Icons.broken_image_outlined, color: Colors.white24),
-      ),
+      placeholder: (context, url) => Container(color: AppColors.surface),
+      errorWidget: (context, url, error) => Container(color: Colors.black26),
     );
   }
 }
@@ -2333,128 +2368,112 @@ class _MovieGridCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (_, anim, __) => WatchlistDetailScreen(tmdbId: movie.tmdbId),
-            transitionsBuilder: (_, anim, __, child) => FadeTransition(
-              opacity: anim,
-              child: child,
+      onTap: onTap,
+      onLongPress: onLongPress,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
-          ),
-        );
-      },
-      onLongPress: () {
-        // Show options
-        _showOptions(context);
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Hero(
-                    tag: 'poster_${movie.tmdbId}',
-                    child: CachedNetworkImage(
-                      imageUrl: 'https://image.tmdb.org/t/p/w342${movie.posterPath}',
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                      placeholder: (context, url) => Container(
-                        color: Colors.white.withOpacity(0.05),
-                        child: const Center(
-                          child: Icon(Icons.movie_filter_rounded,
-                              color: Colors.white10, size: 30),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.white.withOpacity(0.05),
-                        child: const Icon(Icons.error_outline),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: Hero(
+                  tag: 'poster_${movie.tmdbId}',
+                  child: CachedNetworkImage(
+                    imageUrl: 'https://image.tmdb.org/t/p/w342${movie.posterPath}',
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Container(color: AppColors.surface),
+                  ),
+                ),
+              ),
+              // Gradient Overlay
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.1),
+                        Colors.black.withOpacity(0.9),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // Selection Mode Overlay
+              if (isSelectionMode)
+                Positioned.fill(
+                  child: Container(
+                    color: isSelected ? AppColors.primary.withOpacity(0.4) : Colors.black45,
+                    child: Center(
+                      child: Icon(
+                        isSelected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
+                        color: Colors.white,
+                        size: 32,
                       ),
                     ),
                   ),
                 ),
-                if (isSelectionMode)
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isSelected ? AppColors.primary.withOpacity(0.3) : Colors.black26,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Center(
-                        child: Icon(
-                          isSelected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,
-                          color: isSelected ? Colors.white : Colors.white70,
-                          size: 32,
-                        ),
-                      ),
-                    ),
-                  ),
-                Positioned(
-                  top: 6,
-                  left: 6,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.75),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      movie.status.name.toUpperCase(),
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 7,
+              // Metadata
+              Positioned(
+                bottom: 12,
+                left: 10,
+                right: 10,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      movie.title.toUpperCase(),
+                      style: GoogleFonts.dmSans(
+                        color: Colors.white,
+                        fontSize: 10,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 0.5,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                ),
-                if (movie.userRating != null)
-                  Positioned(
-                    bottom: 6,
-                    right: 6,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.star_rounded, color: Colors.white, size: 8),
-                          const SizedBox(width: 2),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                          child: Text(
+                            movie.status.name.toUpperCase(),
+                            style: const TextStyle(color: Colors.white, fontSize: 6, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        if (movie.userRating != null) ...[
+                          const SizedBox(width: 4),
+                          const Icon(Icons.star_rounded, color: Colors.amber, size: 8),
                           Text(
-                            movie.userRating!.toStringAsFixed(1),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            ' ${movie.userRating!.toStringAsFixed(1)}',
+                            style: const TextStyle(color: Colors.white70, fontSize: 8, fontWeight: FontWeight.bold),
                           ),
                         ],
-                      ),
+                      ],
                     ),
-                  ),
-              ],
-            ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 6),
-          Text(
-            movie.title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.dmSans(
-              color: Colors.white.withOpacity(0.9),
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

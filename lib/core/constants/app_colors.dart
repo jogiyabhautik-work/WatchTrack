@@ -14,4 +14,13 @@ class AppColors {
   static const Color darkGrey = Color(0xFF1A1A1A);
   static const Color borderDefault = Color(0xFF222222);
   static const Color ratingGold = Color(0xFFFFD700);
+
+  // Luxury / Cinematic Design System
+  static const Color goldAccent = Color(0xFFFFD700);
+  static Color glassBackground = Colors.black.withOpacity(0.7);
+  static Color glassBorder = Colors.white.withOpacity(0.1);
+  static const List<Color> cinematicGradient = [
+    Color(0xFFD81F26),
+    Color(0xFF8B0000),
+  ];
 }
