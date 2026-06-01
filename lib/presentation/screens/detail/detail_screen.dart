@@ -24,6 +24,7 @@ import 'package:watch_track/presentation/widgets/watchlist_action_sheet.dart';
 import 'package:watch_track/presentation/widgets/watchlist_action_sheet.dart';
 import 'package:watch_track/core/utils/adaptive_theme_helper.dart';
 import 'package:watch_track/features/soundtrack/presentation/widgets/songs_section.dart';
+import 'package:watch_track/presentation/widgets/global_trailer_player.dart';
 
 class DetailScreen extends StatefulWidget {
   final Movie movie;
@@ -44,32 +45,10 @@ class _DetailScreenState extends State<DetailScreen> {
   String? _detailsError;
   bool _isNavigating = false;
 
-  YoutubePlayerController? _youtubeController;
-  bool _isTrailerReady = false;
-
-  Future<void> _initializeTrailer() async {
-    try {
-      final trailerKey = await _apiService.getMovieTrailer(widget.movie.id, isMovie: widget.movie.isMovie);
-      if (trailerKey != null && mounted) {
-        setState(() {
-          _youtubeController = YoutubePlayerController(
-            initialVideoId: trailerKey,
-            flags: const YoutubePlayerFlags(
-              autoPlay: false,
-              mute: false,
-            ),
-          );
-          _isTrailerReady = true;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error fetching trailer: $e');
-    }
-  }
+  bool _isTrailerMode = false;
 
   @override
   void dispose() {
-    _youtubeController?.dispose();
     super.dispose();
   }
 
@@ -93,7 +72,6 @@ class _DetailScreenState extends State<DetailScreen> {
     super.initState();
     _loadAllContent();
     _updateAccentColor(widget.movie.posterPath);
-    _initializeTrailer();
   }
 
   Future<void> _loadAllContent({bool forceRefresh = false}) async {
@@ -154,18 +132,9 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   void _playTrailer(Movie movie) async {
-    if (_isTrailerReady && _youtubeController != null) {
-      _youtubeController!.play();
-    } else {
-      final trailerKey =
-          await _apiService.getMovieTrailer(movie.id, isMovie: movie.isMovie);
-      if (trailerKey != null) {
-        final url = Uri.parse('https://www.youtube.com/watch?v=$trailerKey');
-        if (await canLaunchUrl(url)) {
-          await launchUrl(url, mode: LaunchMode.externalApplication);
-        }
-      }
-    }
+    setState(() {
+      _isTrailerMode = true;
+    });
   }
 
   void _showWatchlistSheet(BuildContext context, Movie movie) {
@@ -344,6 +313,24 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
         ),
       ),
+      actions: _isTrailerMode
+          ? [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CircleAvatar(
+                  backgroundColor: Colors.black26,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white, size: 18),
+                    onPressed: () {
+                      setState(() {
+                        _isTrailerMode = false;
+                      });
+                    },
+                  ),
+                ),
+              ),
+            ]
+          : null,
       flexibleSpace: FlexibleSpaceBar(
         background: Stack(
           children: [
@@ -358,95 +345,72 @@ class _DetailScreenState extends State<DetailScreen> {
                 ),
               ),
             ),
-            if (_isTrailerReady && _youtubeController != null)
+            if (_isTrailerMode)
               Positioned.fill(
-                child: YoutubePlayer(
-                  controller: _youtubeController!,
-                  showVideoProgressIndicator: true,
-                  progressIndicatorColor: _accentColor,
-                  progressColors: ProgressBarColors(
-                    playedColor: _accentColor,
-                    handleColor: _accentColor,
-                  ),
-                  bottomActions: [
-                    const SizedBox(width: 14.0),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 50.0),
-                      child: CurrentPosition(),
+                child: Container(
+                  color: Colors.black,
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).padding.top + 56.0,
+                      left: 16,
+                      right: 16,
+                      bottom: 16,
                     ),
-                    const SizedBox(width: 8.0),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 50.0),
-                        child: ProgressBar(
-                          isExpanded: true,
-                          colors: ProgressBarColors(
-                            playedColor: _accentColor,
-                            handleColor: _accentColor,
-                          ),
-                        ),
+                    child: GlobalTrailerPlayer(movie: widget.movie),
+                  ),
+                ),
+              ),
+            if (!_isTrailerMode) ...[
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        stops: const [0.5, 0.8, 1.0],
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withOpacity(0.6),
+                          Colors.black,
+                        ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 50.0),
-                      child: const PlaybackSpeedButton(),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 40,
+                left: 24,
+                right: 24,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      movie.title.toUpperCase(),
+                      style: GoogleFonts.playfairDisplay(
+                        fontSize: 40,
+                        fontWeight: FontWeight.w900,
+                        color: Colors.white,
+                        height: 0.9,
+                      ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 50.0),
-                      child: FullScreenButton(),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: movie.genres.take(3).map((g) => Container(
+                        margin: const EdgeInsets.only(right: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white30),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(g, style: GoogleFonts.dmSans(fontSize: 9, color: Colors.white70, fontWeight: FontWeight.bold)),
+                      )).toList(),
                     ),
                   ],
                 ),
               ),
-            Positioned.fill(
-              child: IgnorePointer(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      stops: const [0.5, 0.8, 1.0],
-                      colors: [
-                        Colors.transparent,
-                        Colors.black.withOpacity(0.6),
-                        Colors.black,
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 40,
-              left: 24,
-              right: 24,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    movie.title.toUpperCase(),
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 40,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      height: 0.9,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: movie.genres.take(3).map((g) => Container(
-                      margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white30),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(g, style: GoogleFonts.dmSans(fontSize: 9, color: Colors.white70, fontWeight: FontWeight.bold)),
-                    )).toList(),
-                  ),
-                ],
-              ),
-            ),
+            ],
           ],
         ),
       ),

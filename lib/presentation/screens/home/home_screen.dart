@@ -14,6 +14,8 @@ import 'package:watch_track/presentation/screens/detail/detail_screen.dart';
 import 'package:watch_track/presentation/screens/genre/genre_screen.dart';
 import 'package:watch_track/core/providers/user_data_provider.dart';
 import 'package:watch_track/core/providers/recommendation_provider.dart';
+import 'package:watch_track/core/utils/adaptive_theme_helper.dart';
+import 'package:watch_track/core/services/global_youtube_service.dart';
 import 'package:watch_track/core/appwrite_client.dart';
 import 'package:watch_track/core/providers/tracking_provider.dart';
 import 'package:watch_track/presentation/screens/home/see_all_screen.dart';
@@ -997,8 +999,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _playTrailer(Movie movie) async {
-    final trailerKey = await _apiService.getMovieTrailer(movie.id, isMovie: movie.isMovie);
-    if (trailerKey != null) {
+    final trailers = await GlobalYouTubeService().getTrailers(
+      tmdbId: movie.id,
+      isMovie: movie.isMovie,
+      title: movie.title,
+      year: movie.releaseDate.isNotEmpty ? movie.releaseDate.substring(0, 4) : null,
+    );
+    if (trailers.isNotEmpty) {
+      final trailerKey = trailers.first.id;
       final url = Uri.parse('https://www.youtube.com/watch?v=$trailerKey');
       if (await canLaunchUrl(url)) {
         await launchUrl(url);

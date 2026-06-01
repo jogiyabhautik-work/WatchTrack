@@ -49,6 +49,7 @@ class AppwriteConstants {
   // User Prefs
   static const String attrFavoriteGenres = 'favoriteGenres';
   static const String attrFavoriteActors = 'favoriteActors';
+  static const String attrFavoriteSongs = 'favoriteSongs';
   static const String attrHistory = 'history'; // List of TMDB IDs
   static const String attrOnboardingDone = 'onboardingDone';
   static const String attrPfpUrl = 'pfpUrl';

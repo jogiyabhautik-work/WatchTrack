@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
-import 'package:device_preview/device_preview.dart';
 import 'package:provider/provider.dart';
 import 'package:watch_track/core/theme/theme_provider.dart';
 import 'package:watch_track/core/providers/user_data_provider.dart';
@@ -17,14 +15,26 @@ import 'package:watch_track/features/import_watchlist/presentation/watchlist_imp
 import 'package:watch_track/features/import_watchlist/domain/import_matcher.dart';
 import 'package:watch_track/features/import_watchlist/data/tmdb_import_repository.dart';
 import 'package:watch_track/back-end/api_service.dart';
-import 'package:watch_track/presentation/screens/main_screen.dart';
+
 
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:watch_track/core/appwrite_setup.dart';
+import 'package:watch_track/core/providers/audio_player_provider.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.watchtrack.app.channel.audio',
+    androidNotificationChannelName: 'Audio playback',
+    androidNotificationOngoing: true,
+    androidNotificationIcon: 'mipmap/ic_launcher',
+    notificationColor: const Color(0xFFD81F26), // AppTheme Primary Red
+    androidStopForegroundOnPause: true,
+  );
+  
   await dotenv.load(fileName: ".env");
 
   // Automate Appwrite schema verification on startup
@@ -42,55 +52,52 @@ void main() async {
     ),
   );
   runApp(
-    DevicePreview(
-      enabled: !kReleaseMode,
-      builder: (context) => MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) => ThemeProvider()),
-          ChangeNotifierProvider(create: (_) => AuthProvider()),
-          ChangeNotifierProxyProvider<AuthProvider, SyncProvider>(
-            create: (_) => SyncProvider(),
-            update: (_, auth, syncProvider) => syncProvider!..setUserId(auth.user?.$id),
-          ),
-          ChangeNotifierProxyProvider<AuthProvider, UserDataProvider>(
-            create: (_) => UserDataProvider(),
-            update: (_, auth, user) => user!..setUserId(auth.user?.$id),
-          ),
-          ChangeNotifierProxyProvider2<AuthProvider, SyncProvider, TrackingProvider>(
-            create: (_) => TrackingProvider(),
-            update: (_, auth, sync, track) => track!
-              ..setUserId(auth.user?.$id)
-              ..setSyncProvider(sync),
-          ),
-          ChangeNotifierProxyProvider2<AuthProvider, SyncProvider, WatchlistFolderProvider>(
-            create: (_) => WatchlistFolderProvider(),
-            update: (_, auth, sync, folder) => folder!
-              ..setUserId(auth.user?.$id)
-              ..setSyncProvider(sync),
-          ),
-          ChangeNotifierProxyProvider2<TrackingProvider, WatchlistFolderProvider, WatchlistImportProvider>(
-            create: (context) {
-              final repo = TmdbImportRepository(ApiService());
-              final matcher = ImportMatcher(repo);
-              return WatchlistImportProvider(
-                matcher,
-                Provider.of<TrackingProvider>(context, listen: false),
-                Provider.of<WatchlistFolderProvider>(context, listen: false),
-              );
-            },
-            update: (_, tracking, folder, provider) {
-              // Ensure we maintain reference to latest providers if they change
-              return provider ?? WatchlistImportProvider(
-                ImportMatcher(TmdbImportRepository(ApiService())), 
-                tracking, 
-                folder
-              );
-            },
-          ),
-          ChangeNotifierProvider(create: (_) => RecommendationProvider()),
-        ],
-        child: const CineTrackApp(),
-      ),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AudioPlayerProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, SyncProvider>(
+          create: (_) => SyncProvider(),
+          update: (_, auth, syncProvider) => syncProvider!..setUserId(auth.user?.$id),
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, UserDataProvider>(
+          create: (_) => UserDataProvider(),
+          update: (_, auth, user) => user!..setUserId(auth.user?.$id),
+        ),
+        ChangeNotifierProxyProvider2<AuthProvider, SyncProvider, TrackingProvider>(
+          create: (_) => TrackingProvider(),
+          update: (_, auth, sync, track) => track!
+            ..setUserId(auth.user?.$id)
+            ..setSyncProvider(sync),
+        ),
+        ChangeNotifierProxyProvider2<AuthProvider, SyncProvider, WatchlistFolderProvider>(
+          create: (_) => WatchlistFolderProvider(),
+          update: (_, auth, sync, folder) => folder!
+            ..setUserId(auth.user?.$id)
+            ..setSyncProvider(sync),
+        ),
+        ChangeNotifierProxyProvider2<TrackingProvider, WatchlistFolderProvider, WatchlistImportProvider>(
+          create: (context) {
+            final repo = TmdbImportRepository(ApiService());
+            final matcher = ImportMatcher(repo);
+            return WatchlistImportProvider(
+              matcher,
+              Provider.of<TrackingProvider>(context, listen: false),
+              Provider.of<WatchlistFolderProvider>(context, listen: false),
+            );
+          },
+          update: (_, tracking, folder, provider) {
+            return provider ?? WatchlistImportProvider(
+              ImportMatcher(TmdbImportRepository(ApiService())),
+              tracking,
+              folder
+            );
+          },
+        ),
+        ChangeNotifierProvider(create: (_) => RecommendationProvider()),
+      ],
+      child: const CineTrackApp(),
     ),
   );
 }
@@ -103,9 +110,6 @@ class CineTrackApp extends StatelessWidget {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         return MaterialApp(
-          useInheritedMediaQuery: true,
-          locale: DevicePreview.locale(context),
-          builder: DevicePreview.appBuilder,
           title: 'CINE Track',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,

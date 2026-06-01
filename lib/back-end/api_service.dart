@@ -418,31 +418,7 @@ class ApiService {
     return [];
   }
 
-  Future<String?> getMovieTrailer(String id, {bool isMovie = true, bool forceRefresh = false}) async {
-    final cacheKey = 'trailer_$id';
-    if (!forceRefresh) {
-      final cached = await CacheManager.get(cacheKey);
-      if (cached != null) return cached;
-    }
 
-    final type = isMovie ? 'movie' : 'tv';
-    final response = await _safeGet('$_baseUrl/$type/$id/videos?api_key=$_apiKey');
-
-    if (response != null && response.statusCode == 200) {
-      final Map<String, dynamic> data = json.decode(response.body);
-      final List<dynamic> results = data['results'] ?? [];
-      final trailer = results.firstWhere(
-        (v) => v['site'] == 'YouTube' && (v['type'] == 'Trailer' || v['type'] == 'Teaser'),
-        orElse: () => null,
-      );
-
-      if (trailer != null) {
-        await CacheManager.save(cacheKey, trailer['key'], const Duration(days: 30));
-        return trailer['key'];
-      }
-    }
-    return null;
-  }
 
   Future<List<Movie>> getSimilarContent(String id, {bool isMovie = true, bool forceRefresh = false}) async {
     final cacheKey = 'similar_$id';

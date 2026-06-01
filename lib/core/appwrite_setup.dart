@@ -117,6 +117,7 @@ class AppwriteSchemaManager {
       _Attr(AppwriteConstants.attrUserId, 'string', required: true),
       _Attr(AppwriteConstants.attrFavoriteGenres, 'string', isArray: true),
       _Attr(AppwriteConstants.attrFavoriteActors, 'string', isArray: true),
+      _Attr(AppwriteConstants.attrFavoriteSongs, 'string', isArray: true, size: 5000),
       _Attr(AppwriteConstants.attrHistory, 'string', isArray: true),
       _Attr(AppwriteConstants.attrOnboardingDone, 'boolean', defaultValue: false),
       _Attr(AppwriteConstants.attrPfpUrl, 'string', required: false),

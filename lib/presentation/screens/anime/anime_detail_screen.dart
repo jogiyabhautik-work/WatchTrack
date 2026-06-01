@@ -16,6 +16,7 @@ import 'package:watch_track/presentation/screens/anime/anime_home_screen.dart'; 
 import 'package:watch_track/presentation/screens/anime/anime_actor_detail_screen.dart';
 import 'package:watch_track/data/models/user_title_model.dart';
 import 'package:watch_track/features/soundtrack/presentation/widgets/songs_section.dart';
+import 'package:watch_track/presentation/widgets/global_trailer_player.dart';
 
 class AnimeDetailScreen extends StatefulWidget {
   final Movie movie;
@@ -36,32 +37,10 @@ class _AnimeDetailScreenState extends State<AnimeDetailScreen> {
   bool _isLoadingReviews = false;
   bool _isExpanded = false;
 
-  YoutubePlayerController? _youtubeController;
-  bool _isTrailerReady = false;
-
-  Future<void> _initializeTrailer() async {
-    try {
-      final trailerKey = await _apiService.getMovieTrailer(widget.movie.id, isMovie: false);
-      if (trailerKey != null && mounted) {
-        setState(() {
-          _youtubeController = YoutubePlayerController(
-            initialVideoId: trailerKey,
-            flags: const YoutubePlayerFlags(
-              autoPlay: false,
-              mute: false,
-            ),
-          );
-          _isTrailerReady = true;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error fetching trailer: $e');
-    }
-  }
+  bool _isTrailerMode = false;
 
   @override
   void dispose() {
-    _youtubeController?.dispose();
     super.dispose();
   }
 
@@ -69,7 +48,6 @@ class _AnimeDetailScreenState extends State<AnimeDetailScreen> {
   void initState() {
     super.initState();
     _loadDetails();
-    _initializeTrailer();
   }
 
   Future<void> _loadDetails({bool forceRefresh = false}) async {
@@ -110,17 +88,9 @@ class _AnimeDetailScreenState extends State<AnimeDetailScreen> {
   }
 
   void _playTrailer(Movie anime) async {
-    if (_isTrailerReady && _youtubeController != null) {
-      _youtubeController!.play();
-    } else {
-      final trailerKey = await _apiService.getMovieTrailer(anime.id, isMovie: false);
-      if (trailerKey != null) {
-        final url = Uri.parse('https://www.youtube.com/watch?v=$trailerKey');
-        if (await canLaunchUrl(url)) {
-          await launchUrl(url, mode: LaunchMode.externalApplication);
-        }
-      }
-    }
+    setState(() {
+      _isTrailerMode = true;
+    });
   }
 
   void _shareAnime(Movie anime) {
@@ -251,44 +221,12 @@ class _AnimeDetailScreenState extends State<AnimeDetailScreen> {
                 ),
               ),
             ),
-            if (_isTrailerReady && _youtubeController != null)
+            if (_isTrailerMode)
               Positioned.fill(
-                child: YoutubePlayer(
-                  controller: _youtubeController!,
-                  showVideoProgressIndicator: true,
-                  progressIndicatorColor: AnimeColors.actionRed,
-                  progressColors: const ProgressBarColors(
-                    playedColor: AnimeColors.actionRed,
-                    handleColor: AnimeColors.actionRed,
-                  ),
-                  bottomActions: [
-                    const SizedBox(width: 14.0),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 50.0),
-                      child: CurrentPosition(),
-                    ),
-                    const SizedBox(width: 8.0),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 50.0),
-                        child: ProgressBar(
-                          isExpanded: true,
-                          colors: const ProgressBarColors(
-                            playedColor: AnimeColors.actionRed,
-                            handleColor: AnimeColors.actionRed,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 50.0),
-                      child: PlaybackSpeedButton(),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 50.0),
-                      child: FullScreenButton(),
-                    ),
-                  ],
+                child: Container(
+                  color: Colors.black,
+                  alignment: Alignment.center,
+                  child: GlobalTrailerPlayer(movie: widget.movie),
                 ),
               ),
             Positioned.fill(

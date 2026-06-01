@@ -4,6 +4,11 @@ import 'package:watch_track/core/constants/app_colors.dart';
 import 'package:watch_track/presentation/screens/home/home_screen.dart';
 import 'package:watch_track/presentation/screens/search/search_screen.dart';
 import 'package:watch_track/presentation/screens/watchlist/watchlist_screen.dart';
+import 'package:watch_track/presentation/screens/audio/audio_library_screen.dart';
+import 'package:watch_track/presentation/widgets/mini_audio_player.dart';
+import 'package:provider/provider.dart';
+import 'package:watch_track/core/providers/audio_player_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -19,18 +24,39 @@ class _MainScreenState extends State<MainScreen> {
     const HomeScreen(),
     const SearchScreen(),
     const WatchlistScreen(),
+    const AudioLibraryScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _requestPermissions();
+  }
+
+  Future<void> _requestPermissions() async {
+    await Permission.notification.request();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.black,
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _screens,
+      body: Stack(
+        children: [
+          IndexedStack(
+            index: _selectedIndex,
+            children: _screens,
+          ),
+        ],
       ),
-      bottomNavigationBar: _buildFloatingNavBar(),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const MiniAudioPlayer(),
+          _buildFloatingNavBar(),
+        ],
+      ),
     );
   }
 
@@ -64,6 +90,7 @@ class _MainScreenState extends State<MainScreen> {
                 _buildNavItem(0, Icons.home_outlined, Icons.home_filled, 'HOME'),
                 _buildNavItem(1, Icons.search_rounded, Icons.search_rounded, 'SEARCH'),
                 _buildNavItem(2, Icons.movie_filter_outlined, Icons.movie_filter_rounded, 'LIBRARY'),
+                _buildNavItem(3, Icons.music_note_outlined, Icons.music_note_rounded, 'MUSIC'),
               ],
             ),
           ),

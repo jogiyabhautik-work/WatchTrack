@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 import 'package:watch_track/features/soundtrack/domain/models/song_model.dart';
 import 'package:watch_track/features/soundtrack/services/anime_themes_service.dart';
-import 'package:watch_track/features/soundtrack/services/youtube_service.dart';
+import 'package:watch_track/core/services/global_youtube_service.dart';
 
 class SoundtrackRepository {
   final AnimeThemesService _animeThemesService;
-  final YouTubeService _youtubeService;
+  final GlobalYouTubeService _youtubeService;
 
   // Simple in-memory cache mapping mediaId to list of songs
   final Map<String, List<SongModel>> _cache = {};
@@ -16,9 +16,9 @@ class SoundtrackRepository {
 
   SoundtrackRepository._internal({
     AnimeThemesService? animeThemesService,
-    YouTubeService? youtubeService,
+    GlobalYouTubeService? youtubeService,
   })  : _animeThemesService = animeThemesService ?? AnimeThemesService(),
-        _youtubeService = youtubeService ?? YouTubeService();
+        _youtubeService = youtubeService ?? GlobalYouTubeService();
 
   Future<List<SongModel>> getSongs({
     required String mediaId,
@@ -40,7 +40,7 @@ class SoundtrackRepository {
       songs = await _animeThemesService.getThemesForAnime(title);
     } else {
       debugPrint('Fetching YouTube for $title');
-      songs = await _youtubeService.getSoundtrackForMedia(title, isMovie);
+      songs = await _youtubeService.getSoundtracks(title: title, isMovie: isMovie, isAnime: isAnime);
     }
 
     // 3. Cache results (even if empty, to prevent repeated failing requests)

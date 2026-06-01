@@ -4,10 +4,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:appwrite/appwrite.dart';
 import 'package:watch_track/core/appwrite_client.dart';
 import 'package:watch_track/core/appwrite_constants.dart';
+import 'package:watch_track/features/soundtrack/domain/models/song_model.dart';
 
 class UserDataProvider extends ChangeNotifier {
   Set<String> _favoriteGenres = {};
   Set<String> _favoriteActors = {};
+  List<SongModel> _favoriteSongs = [];
   String? _pfpUrl;
   bool _onboardingDone = false;
 
@@ -18,6 +20,7 @@ class UserDataProvider extends ChangeNotifier {
   static const String _actorsKey = 'user_favorite_actors';
   static const String _pfpKey = 'user_pfp';
   static const String _onboardingKey = 'user_onboarding_done';
+  static const String _songsKey = 'user_favorite_songs';
 
   UserDataProvider() {
     _loadData();
@@ -26,6 +29,7 @@ class UserDataProvider extends ChangeNotifier {
   void clearData() {
     _favoriteGenres.clear();
     _favoriteActors.clear();
+    _favoriteSongs.clear();
     _pfpUrl = null;
     _onboardingDone = false;
     notifyListeners();
@@ -34,6 +38,7 @@ class UserDataProvider extends ChangeNotifier {
       prefs.remove(_actorsKey);
       prefs.remove(_pfpKey);
       prefs.remove(_onboardingKey);
+      prefs.remove(_songsKey);
     });
   }
 
@@ -50,6 +55,7 @@ class UserDataProvider extends ChangeNotifier {
 
   Set<String> get favoriteGenres => _favoriteGenres;
   Set<String> get favoriteActors => _favoriteActors;
+  List<SongModel> get favoriteSongs => _favoriteSongs;
   String? get pfpUrl => _pfpUrl;
   bool get onboardingDone => _onboardingDone;
 
@@ -65,6 +71,18 @@ class UserDataProvider extends ChangeNotifier {
       _favoriteGenres.remove(genre);
     } else {
       _favoriteGenres.add(genre);
+    }
+    notifyListeners();
+    _saveData();
+    if (_currentUserId != null) _syncPrefsToAppwrite();
+  }
+
+  void toggleFavoriteSong(SongModel song) {
+    final exists = _favoriteSongs.any((s) => s.id == song.id);
+    if (exists) {
+      _favoriteSongs.removeWhere((s) => s.id == song.id);
+    } else {
+      _favoriteSongs.insert(0, song); // Add to top
     }
     notifyListeners();
     _saveData();
@@ -94,6 +112,7 @@ class UserDataProvider extends ChangeNotifier {
       AppwriteConstants.attrUserId: _currentUserId,
       AppwriteConstants.attrFavoriteGenres: _favoriteGenres.toList(),
       AppwriteConstants.attrFavoriteActors: _favoriteActors.toList(),
+      AppwriteConstants.attrFavoriteSongs: _favoriteSongs.map((s) => jsonEncode(s.toJson())).toList(),
       AppwriteConstants.attrOnboardingDone: _onboardingDone,
       AppwriteConstants.attrPfpUrl: _pfpUrl,
     };
@@ -134,6 +153,14 @@ class UserDataProvider extends ChangeNotifier {
       );
       _favoriteGenres = (doc.data[AppwriteConstants.attrFavoriteGenres] as List?)?.map((e) => e.toString()).toSet() ?? {};
       _favoriteActors = (doc.data[AppwriteConstants.attrFavoriteActors] as List?)?.map((e) => e.toString()).toSet() ?? {};
+      
+      final songsList = doc.data[AppwriteConstants.attrFavoriteSongs] as List?;
+      if (songsList != null) {
+        _favoriteSongs = songsList.map((e) => SongModel.fromJson(jsonDecode(e.toString()))).toList();
+      } else {
+        _favoriteSongs = [];
+      }
+      
       _pfpUrl = doc.data[AppwriteConstants.attrPfpUrl]?.toString();
       _onboardingDone = doc.data[AppwriteConstants.attrOnboardingDone] ?? false;
 
@@ -146,29 +173,28 @@ class UserDataProvider extends ChangeNotifier {
 
   void _saveData() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_genresKey, json.encode(_favoriteGenres.toList()));
-    await prefs.setString(_actorsKey, json.encode(_favoriteActors.toList()));
-    await prefs.setBool(_onboardingKey, _onboardingDone);
-    if (_pfpUrl != null) await prefs.setString(_pfpKey, _pfpUrl!);
+    prefs.setStringList(_genresKey, _favoriteGenres.toList());
+    prefs.setStringList(_actorsKey, _favoriteActors.toList());
+    prefs.setStringList(_songsKey, _favoriteSongs.map((s) => jsonEncode(s.toJson())).toList());
+    prefs.setBool(_onboardingKey, _onboardingDone);
+    if (_pfpUrl != null) prefs.setString(_pfpKey, _pfpUrl!);
   }
 
   void _loadData() async {
     final prefs = await SharedPreferences.getInstance();
     
-    final genresStr = prefs.getString(_genresKey);
-    if (genresStr != null) {
-      final List decoded = json.decode(genresStr);
-      _favoriteGenres = decoded.map((e) => e.toString()).toSet();
+    _favoriteGenres = prefs.getStringList(_genresKey)?.toSet() ?? {};
+    _favoriteActors = prefs.getStringList(_actorsKey)?.toSet() ?? {};
+    
+    final savedSongs = prefs.getStringList(_songsKey);
+    if (savedSongs != null) {
+      _favoriteSongs = savedSongs.map((s) => SongModel.fromJson(jsonDecode(s))).toList();
+    } else {
+      _favoriteSongs = [];
     }
-
-    final actorsStr = prefs.getString(_actorsKey);
-    if (actorsStr != null) {
-      final List decoded = json.decode(actorsStr);
-      _favoriteActors = decoded.map((e) => e.toString()).toSet();
-    }
-
-    _onboardingDone = prefs.getBool(_onboardingKey) ?? false;
+    
     _pfpUrl = prefs.getString(_pfpKey);
+    _onboardingDone = prefs.getBool(_onboardingKey) ?? false;
 
     notifyListeners();
   }
