@@ -16,34 +16,32 @@ import 'package:watch_track/features/import_watchlist/domain/import_matcher.dart
 import 'package:watch_track/features/import_watchlist/data/tmdb_import_repository.dart';
 import 'package:watch_track/back-end/api_service.dart';
 
-
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:watch_track/core/appwrite_setup.dart';
 import 'package:watch_track/core/providers/audio_player_provider.dart';
+import 'package:watch_track/core/providers/lyrics_provider.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.watchtrack.app.channel.audio',
     androidNotificationChannelName: 'Audio playback',
     androidNotificationOngoing: true,
-    androidNotificationIcon: 'mipmap/ic_launcher',
+    androidNotificationIcon: 'mipmap/launcher_icon',
     notificationColor: const Color(0xFFD81F26), // AppTheme Primary Red
     androidStopForegroundOnPause: true,
   );
-  
+
   await dotenv.load(fileName: ".env");
 
-  // Automate Appwrite schema verification on startup
-  try {
-    await AppwriteSchemaManager.setupIfAvailable();
-  } catch (e, stackTrace) {
+  // Automate Appwrite schema verification in background to prevent blocking splash screen
+  AppwriteSchemaManager.setupIfAvailable().catchError((e, stackTrace) {
     debugPrint('⚠️ Appwrite schema setup failed or skipped: $e');
     debugPrint(stackTrace.toString());
-  }
+  });
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -57,27 +55,41 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => AudioPlayerProvider()),
+        ChangeNotifierProvider(create: (_) => LyricsProvider()),
         ChangeNotifierProxyProvider<AuthProvider, SyncProvider>(
           create: (_) => SyncProvider(),
-          update: (_, auth, syncProvider) => syncProvider!..setUserId(auth.user?.$id),
+          update: (_, auth, syncProvider) =>
+              syncProvider!..setUserId(auth.user?.$id),
         ),
         ChangeNotifierProxyProvider<AuthProvider, UserDataProvider>(
           create: (_) => UserDataProvider(),
           update: (_, auth, user) => user!..setUserId(auth.user?.$id),
         ),
-        ChangeNotifierProxyProvider2<AuthProvider, SyncProvider, TrackingProvider>(
+        ChangeNotifierProxyProvider2<
+          AuthProvider,
+          SyncProvider,
+          TrackingProvider
+        >(
           create: (_) => TrackingProvider(),
           update: (_, auth, sync, track) => track!
             ..setUserId(auth.user?.$id)
             ..setSyncProvider(sync),
         ),
-        ChangeNotifierProxyProvider2<AuthProvider, SyncProvider, WatchlistFolderProvider>(
+        ChangeNotifierProxyProvider2<
+          AuthProvider,
+          SyncProvider,
+          WatchlistFolderProvider
+        >(
           create: (_) => WatchlistFolderProvider(),
           update: (_, auth, sync, folder) => folder!
             ..setUserId(auth.user?.$id)
             ..setSyncProvider(sync),
         ),
-        ChangeNotifierProxyProvider2<TrackingProvider, WatchlistFolderProvider, WatchlistImportProvider>(
+        ChangeNotifierProxyProvider2<
+          TrackingProvider,
+          WatchlistFolderProvider,
+          WatchlistImportProvider
+        >(
           create: (context) {
             final repo = TmdbImportRepository(ApiService());
             final matcher = ImportMatcher(repo);
@@ -88,11 +100,12 @@ Future<void> main() async {
             );
           },
           update: (_, tracking, folder, provider) {
-            return provider ?? WatchlistImportProvider(
-              ImportMatcher(TmdbImportRepository(ApiService())),
-              tracking,
-              folder
-            );
+            return provider ??
+                WatchlistImportProvider(
+                  ImportMatcher(TmdbImportRepository(ApiService())),
+                  tracking,
+                  folder,
+                );
           },
         ),
         ChangeNotifierProvider(create: (_) => RecommendationProvider()),

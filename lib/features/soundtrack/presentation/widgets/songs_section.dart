@@ -139,16 +139,7 @@ class _SongsSectionState extends State<SongsSection> {
           _buildVerificationBanner(),
           const SizedBox(height: 12),
         ],
-        if (widget.isMovie || !widget.isAnime) ...[
-          Text(
-            'Powered by YouTube',
-            style: GoogleFonts.dmSans(
-              fontSize: 10,
-              color: AppColors.textMuted,
-            ),
-          ),
-          const SizedBox(height: 12),
-        ],
+
         ..._songs.map((song) => _buildSongCard(song)).toList(),
       ],
     );
@@ -224,7 +215,7 @@ class _SongsSectionState extends State<SongsSection> {
                       }
                     },
                     icon: const Icon(Icons.search, size: 16),
-                    label: const Text('Search manually on YouTube'),
+                    label: const Text('Search manually'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.primary,
                       side: const BorderSide(color: AppColors.primary),
@@ -301,21 +292,15 @@ class _SongsSectionState extends State<SongsSection> {
                         decoration: BoxDecoration(
                           color: typeColor.withOpacity(0.1),
                         ),
-                        child: song.thumbnailUrl != null
-                            ? Image.network(
-                                song.thumbnailUrl!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => Icon(
-                                  _getIconForType(song.type),
-                                  color: typeColor,
-                                  size: 24,
-                                ),
-                              )
-                            : Icon(
-                                _getIconForType(song.type),
-                                color: typeColor,
-                                size: 24,
-                              ),
+                        child: Image.asset(
+                          'assets/logo/default_soundtrack.png',
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Icon(
+                            _getIconForType(song.type),
+                            color: typeColor,
+                            size: 24,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -488,12 +473,12 @@ class _SongsSectionState extends State<SongsSection> {
               ),
               ListTile(
                 leading: const Icon(Icons.link_rounded, color: Colors.white),
-                title: Text('Copy YouTube Link', style: GoogleFonts.dmSans(color: Colors.white)),
+                title: Text('Copy Song Link', style: GoogleFonts.dmSans(color: Colors.white)),
                 onTap: () {
                   Navigator.pop(context);
                   Clipboard.setData(ClipboardData(text: 'https://youtube.com/watch?v=${song.id}'));
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('YouTube link copied to clipboard!')),
+                    const SnackBar(content: Text('Song link copied to clipboard!')),
                   );
                 },
               ),

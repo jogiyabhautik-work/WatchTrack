@@ -95,7 +95,7 @@ class _AnimeDetailScreenState extends State<AnimeDetailScreen> {
 
   void _shareAnime(Movie anime) {
     final url = 'https://www.themoviedb.org/tv/${anime.id}';
-    Share.share('🎬 Watching "${anime.title}" on WatchTrack!\n$url');
+    Share.share('🎬 Watching "${anime.title}" on Track-n-Tube!\n$url');
   }
 
   void _showWatchlistSheet(BuildContext context, Movie anime) {

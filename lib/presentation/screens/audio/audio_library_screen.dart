@@ -153,7 +153,7 @@ class _AudioLibraryScreenState extends State<AudioLibraryScreen> {
                                   style: GoogleFonts.dmSans(color: Colors.white),
                                   onChanged: _onSearchChanged,
                                   decoration: InputDecoration(
-                                    hintText: 'Search for any song on YouTube...',
+                                    hintText: 'Search for any song...',
                                     hintStyle: GoogleFonts.dmSans(color: AppColors.textMuted),
                                     prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textMuted),
                                     suffixIcon: _searchController.text.isNotEmpty

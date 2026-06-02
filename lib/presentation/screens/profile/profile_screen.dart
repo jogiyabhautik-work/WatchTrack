@@ -557,7 +557,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           _buildPreferenceTile(
             icon: Icons.info_outline,
-            title: 'About WatchTrack',
+            title: 'About Track-n-Tube',
             trailing: Text(
               '›',
               style: GoogleFonts.dmSans(color: AppColors.textMuted, fontSize: 18),

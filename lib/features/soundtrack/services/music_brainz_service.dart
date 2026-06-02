@@ -8,7 +8,7 @@ import 'package:watch_track/features/soundtrack/domain/enums/song_source.dart';
 
 class MusicBrainzService {
   static const String _baseUrl = 'https://musicbrainz.org/ws/2';
-  static const String _userAgent = 'WatchTrack/1.0 ( watchtrack@example.com )';
+  static const String _userAgent = 'Track-n-Tube/1.0 ( trackntube@example.com )';
 
   // Strict 1 request per second rate limiting for MusicBrainz
   static DateTime? _lastRequestTime;

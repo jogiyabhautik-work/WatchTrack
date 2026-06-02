@@ -89,6 +89,9 @@ class _GlobalTrailerPlayerState extends State<GlobalTrailerPlayer> {
         builder: (context) => YouTubeVideoScreen(
           videoId: video.id,
           song: null,
+          title: video.title,
+          artist: 'by YouTube',
+          isTrailer: true,
         ),
       ),
     );
@@ -165,6 +168,17 @@ class _GlobalTrailerPlayerState extends State<GlobalTrailerPlayer> {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
+        if (_selectedVideo != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            'by YouTube',
+            style: GoogleFonts.dmSans(
+              color: AppColors.textMuted,
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
         const SizedBox(height: 12),
 
         // Beautiful Card Selection UI

@@ -21,12 +21,20 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> _checkStatus() async {
+    final startTime = DateTime.now();
     try {
       _user = await _account.get();
       _status = AuthStatus.authenticated;
     } catch (e) {
       _status = AuthStatus.unauthenticated;
     }
+    
+    // Ensure splash screen remains visible for at least 1800ms for premium luxury UX
+    final elapsed = DateTime.now().difference(startTime);
+    if (elapsed.inMilliseconds < 1800) {
+      await Future.delayed(Duration(milliseconds: 1800 - elapsed.inMilliseconds));
+    }
+    
     notifyListeners();
   }
 

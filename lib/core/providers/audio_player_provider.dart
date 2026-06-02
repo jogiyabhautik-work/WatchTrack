@@ -7,10 +7,11 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:watch_track/core/services/global_youtube_service.dart';
 import 'package:watch_track/features/soundtrack/domain/models/song_model.dart';
 import 'package:watch_track/features/soundtrack/domain/enums/song_source.dart';
+import 'package:watch_track/features/soundtrack/domain/enums/song_type.dart';
 
 class AudioPlayerProvider extends ChangeNotifier {
   final AudioPlayer _audioPlayer = AudioPlayer();
-  
+
   List<SongModel> _queue = [];
   int _currentIndex = -1;
   bool _isPlaying = false;
@@ -26,7 +27,10 @@ class AudioPlayerProvider extends ChangeNotifier {
   Timer? _sleepTimer;
 
   List<SongModel> get queue => _queue;
-  SongModel? get currentSong => _currentIndex >= 0 && _currentIndex < _queue.length ? _queue[_currentIndex] : null;
+  SongModel? get currentSong =>
+      _currentIndex >= 0 && _currentIndex < _queue.length
+      ? _queue[_currentIndex]
+      : null;
   bool get isPlaying => _isPlaying;
   bool get isBuffering => _isBuffering;
   bool get isShuffle => _isShuffle;
@@ -43,7 +47,9 @@ class AudioPlayerProvider extends ChangeNotifier {
   void _initAudioPlayerListeners() {
     _audioPlayer.playerStateStream.listen((state) {
       _isPlaying = state.playing;
-      _isBuffering = state.processingState == ProcessingState.buffering || state.processingState == ProcessingState.loading;
+      _isBuffering =
+          state.processingState == ProcessingState.buffering ||
+          state.processingState == ProcessingState.loading;
       notifyListeners();
 
       if (state.processingState == ProcessingState.completed) {
@@ -62,13 +68,17 @@ class AudioPlayerProvider extends ChangeNotifier {
     });
   }
 
-  Future<void> playSong(SongModel song, {List<SongModel>? queue, Duration? startPosition}) async {
+  Future<void> playSong(
+    SongModel song, {
+    List<SongModel>? queue,
+    Duration? startPosition,
+  }) async {
     if (queue != null) {
       _queue = List.from(queue);
     } else if (!_queue.any((s) => s.id == song.id)) {
       _queue = [song];
     }
-    
+
     _currentIndex = _queue.indexWhere((s) => s.id == song.id);
     if (_currentIndex == -1) {
       _queue.add(song);
@@ -86,41 +96,71 @@ class AudioPlayerProvider extends ChangeNotifier {
 
     try {
       String? audioUrl = song.externalUrl;
-      
+
       if (song.source == SongSource.youtube && song.id.isNotEmpty) {
-        audioUrl = await GlobalYouTubeService().getAudioStreamUrl(song.id);
+        audioUrl = await GlobalYouTubeService().getAudioStreamUrl(
+          song.id,
+          fallbackQuery: '${song.title} ${song.artist}'.trim(),
+        );
       }
 
       if (audioUrl != null) {
         AudioSource audioSource;
 
-        if (song.source == SongSource.youtube) {
+        final artUri =
+            song.thumbnailUrl != null && song.thumbnailUrl!.isNotEmpty
+            ? Uri.parse(song.thumbnailUrl!)
+            : (song.source == SongSource.youtube
+                  ? Uri.parse('https://i.ytimg.com/vi/${song.id}/hqdefault.jpg')
+                  : null);
+
+        final albumName = song.type == SongType.unknown
+            ? 'Audio Track'
+            : song.type.displayName;
+
+        final durationObj = song.duration != null && song.duration!.isNotEmpty
+            ? _parseDuration(song.duration!)
+            : null;
+
+        if (song.source == SongSource.youtube && !audioUrl.contains('saavncdn.com')) {
           // Use LockCachingAudioSource which uses Dart's HTTP client internally to cache and stream, bypassing ExoPlayer blocks
           audioSource = LockCachingAudioSource(
             Uri.parse(audioUrl),
             headers: const {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'User-Agent':
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             },
             tag: MediaItem(
               id: song.id,
-              album: song.artist,
+              album: albumName,
               title: song.title,
-              artUri: song.thumbnailUrl != null ? Uri.parse(song.thumbnailUrl!) : null,
+              artist: song.artist,
+              artUri: artUri,
+              duration: durationObj,
             ),
           );
         } else {
           audioSource = AudioSource.uri(
             Uri.parse(audioUrl),
+            headers: const {
+              'User-Agent':
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            },
             tag: MediaItem(
               id: song.id,
-              album: song.artist,
+              album: albumName,
               title: song.title,
-              artUri: song.thumbnailUrl != null ? Uri.parse(song.thumbnailUrl!) : null,
+              artist: song.artist,
+              artUri: artUri,
+              duration: durationObj,
             ),
           );
         }
-        
-        await _audioPlayer.setAudioSource(audioSource, initialPosition: startPosition);
+
+        await _audioPlayer.setAudioSource(
+          audioSource,
+          initialPosition: startPosition,
+        );
         await _audioPlayer.play();
       } else {
         debugPrint('Could not find audio stream for ${song.title}');
@@ -247,7 +287,7 @@ class AudioPlayerProvider extends ChangeNotifier {
 
   Future<void> next() async {
     if (_queue.isEmpty) return;
-    
+
     if (_repeatMode == 1) {
       await _startPlayback(_queue[_currentIndex]);
       return;
@@ -320,6 +360,25 @@ class AudioPlayerProvider extends ChangeNotifier {
     _isPlaying = false;
     _isBuffering = false;
     notifyListeners();
+  }
+
+  Duration? _parseDuration(String durationStr) {
+    try {
+      final parts = durationStr.split(':');
+      if (parts.length == 2) {
+        final minutes = int.parse(parts[0]);
+        final seconds = int.parse(parts[1]);
+        return Duration(minutes: minutes, seconds: seconds);
+      } else if (parts.length == 3) {
+        final hours = int.parse(parts[0]);
+        final minutes = int.parse(parts[1]);
+        final seconds = int.parse(parts[2]);
+        return Duration(hours: hours, minutes: minutes, seconds: seconds);
+      }
+    } catch (e) {
+      debugPrint('Error parsing duration: $e');
+    }
+    return null;
   }
 
   @override

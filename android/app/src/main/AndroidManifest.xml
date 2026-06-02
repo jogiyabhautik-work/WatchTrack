@@ -7,7 +7,7 @@
 
     <application
         android:usesCleartextTraffic="true"
-        android:label="Watch Track"
+        android:label="Track-n-Tube"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
         <activity

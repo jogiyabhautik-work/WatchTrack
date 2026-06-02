@@ -1,0 +1,220 @@
+WatchTrack - Flutter Project Structure
+=====================================
+
+📱 Project Root: C:\Users\ASUS\AndroidStudioProjects\WatchTrack
+
+PROJECT FILES
+=============
+pubspec.yaml              - Flutter dependencies and configuration
+pubspec.lock              - Locked dependency versions
+analysis_options.yaml     - Dart analysis rules
+dart_test.yaml            - Test configuration
+
+LIB/ - Application Source Code
+================================
+
+Main Entry Point:
+- main.dart
+
+Core/
+  ├── models/
+  │   ├── movie_model.dart
+  │   ├── sync_action_model.dart
+  │   └── user_title_model.dart
+  │
+  ├── providers/
+  │   ├── auth_provider.dart
+  │   ├── movies_provider.dart
+  │   ├── sync_provider.dart
+  │   ├── theme_provider.dart
+  │   ├── user_data_provider.dart
+  │   ├── watchlist_folder_provider.dart
+  │   ├── watchlist_provider.dart
+  │   └── youtube_audio_source.dart
+  │
+  ├── services/
+  │   ├── global_youtube_service.dart
+  │   └── lyrics_service.dart ⭐ (Recently fixed)
+  │
+  └── theme/
+      ├── app_theme.dart
+      ├── theme_provider.dart
+      └── adaptive_theme_helper.dart
+
+Data/
+  └── models/
+      ├── movie_model.dart
+      ├── sync_action_model.dart
+      └── user_title_model.dart
+
+Features/ - Feature-specific modules
+====================================
+
+1️⃣ Import Watchlist Feature
+  import_watchlist/
+  ├── data/
+  │   └── tmdb_import_repository.dart
+  ├── domain/
+  │   ├── import_matcher.dart
+  │   ├── smart_import_parser.dart
+  │   └── title_cleaner.dart
+  ├── presentation/
+  │   ├── import_input_screen.dart
+  │   ├── import_review_screen.dart
+  │   ├── watchlist_import_provider.dart
+  │   └── widgets/
+  │       └── import_item_tile.dart
+  └── services/
+      └── file_import_service.dart
+
+2️⃣ Soundtrack Feature
+  soundtrack/
+  ├── data/
+  │   └── soundtrack_repository.dart
+  ├── domain/
+  │   ├── enums/
+  │   │   ├── song_source.dart
+  │   │   └── song_type.dart
+  │   └── models/
+  │       └── song_model.dart
+  ├── presentation/
+  │   ├── screens/
+  │   │   └── theme_video_player_screen.dart
+  │   └── widgets/
+  │       └── songs_section.dart
+  └── services/
+      ├── anime_themes_service.dart
+      ├── itunes_service.dart
+      └── music_brainz_service.dart
+
+Presentation/ - UI Layer
+=========================
+
+Screens:
+  ├── actor/
+  │   └── actor_detail_screen.dart
+  │
+  ├── anime/
+  │   ├── anime_actor_detail_screen.dart
+  │   ├── anime_detail_screen.dart
+  │   └── anime_home_screen.dart
+  │
+  ├── audio/
+  │   ├── audio_library_screen.dart
+  │   ├── full_screen_audio_player.dart
+  │   └── youtube_video_screen.dart
+  │
+  ├── auth/
+  │   ├── login_screen.dart
+  │   ├── register_screen.dart
+  │   └── setup_screens.dart
+  │
+  ├── detail/
+  │   ├── detail_screen.dart
+  │   └── widgets/
+  │       └── tracking_bottom_sheet.dart
+  │
+  ├── genre/
+  │   └── genre_screen.dart
+  │
+  ├── home/
+  │   ├── home_screen.dart
+  │   └── see_all_screen.dart
+  │
+  ├── profile/
+  │   └── profile_screen.dart
+  │
+  ├── search/
+  │   └── search_screen.dart
+  │
+  ├── splash/
+  │   ├── premium_splash_screen.dart
+  │   └── splash_screen.dart
+  │
+  ├── watchlist/
+  │   ├── watchlist_detail_screen.dart
+  │   └── watchlist_screen.dart
+  │
+  └── main_screen.dart (Navigation hub)
+
+Widgets:
+  ├── animations/
+  │   └── manga_page_flip.dart
+  │
+  └── Common Widgets/
+      ├── anime/
+      │   ├── manga_index_sheet.dart
+      │   └── manga_panel_painter.dart
+      │
+      ├── binge_planner.dart
+      ├── global_trailer_player.dart
+      ├── mini_audio_player.dart
+      ├── movie_card.dart
+      └── watchlist_action_sheet.dart
+
+Android/ - Native Android Code
+===============================
+  ├── app/
+  │   └── build.gradle.kts
+  │
+  ├── build.gradle
+  ├── gradle.properties
+  └── gradle/wrapper/
+
+IOS/ - Native iOS Code
+======================
+  ├── Podfile
+  ├── Runner.xcodeproj
+  └── Runner.xcworkspace
+
+Web/ - Web Support
+==================
+  ├── manifest.json
+  └── (other web assets)
+
+macOS/ - macOS Support
+======================
+  ├── Podfile
+  └── Runner.xcodeproj
+
+Scripts/
+========
+  ├── check_default_db.dart
+  ├── inspect_schema.dart
+  ├── list_databases.dart
+  ├── setup_appwrite.dart
+  ├── test_create_db.dart
+  ├── test_yt_403.dart
+  └── (utility scripts)
+
+Tests/
+======
+  └── widget_test.dart
+
+Root Test Files:
+  ├── test_fetch.dart
+  └── test_yt.dart
+
+KEY FEATURES OF THIS APP
+=========================
+✅ Movie/Anime tracking with watchlists
+✅ Theme/Soundtrack discovery (iTunes, MusicBrainz, AnimeThemes)
+✅ YouTube audio playback with lyrics support
+✅ Watchlist import from files/CSV
+✅ User authentication & sync
+✅ Theme support (light/dark mode)
+✅ Actor/Genre browsing
+✅ Manga page flip animation
+✅ Binge planning
+
+TECHNOLOGIES USED
+==================
+- Flutter (Dart)
+- Riverpod (State Management)
+- HTTP (API Calls)
+- SQLite/Appwrite (Backend)
+- YouTube Integration
+- File Picker
+- Web Auth
+- Audio Player
+- Shared Preferences

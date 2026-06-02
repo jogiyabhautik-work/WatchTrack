@@ -178,7 +178,7 @@ class _DetailScreenState extends State<DetailScreen> {
   void _shareMovie(Movie movie) {
     final type = movie.isMovie ? 'movie' : 'tv';
     final url = 'https://www.themoviedb.org/$type/${movie.id}';
-    Share.share('🎬 Check out "${movie.title}" on WatchTrack!\n$url');
+    Share.share('🎬 Check out "${movie.title}" on Track-n-Tube!\n$url');
   }
 
   Future<void> _handleRefresh() async {

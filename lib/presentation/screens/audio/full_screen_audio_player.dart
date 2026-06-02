@@ -7,20 +7,67 @@ import 'package:text_scroll/text_scroll.dart';
 
 import 'package:watch_track/core/constants/app_colors.dart';
 import 'package:watch_track/core/providers/audio_player_provider.dart';
+import 'package:watch_track/core/providers/lyrics_provider.dart';
 import 'package:watch_track/core/providers/user_data_provider.dart';
 import 'package:watch_track/features/soundtrack/domain/models/song_model.dart';
+import 'package:watch_track/presentation/screens/audio/youtube_video_screen.dart';
+import 'package:watch_track/presentation/widgets/synced_lyrics_view.dart';
 
-class FullScreenAudioPlayer extends StatelessWidget {
+class FullScreenAudioPlayer extends StatefulWidget {
   const FullScreenAudioPlayer({super.key});
 
   @override
+  State<FullScreenAudioPlayer> createState() => _FullScreenAudioPlayerState();
+}
+
+class _FullScreenAudioPlayerState extends State<FullScreenAudioPlayer> {
+  String? _lyricsSongId;
+
+  bool _waitingForDuration = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final audioProvider = context.watch<AudioPlayerProvider>();
+    final song = audioProvider.currentSong;
+    if (song == null) return;
+
+    final hasDuration = audioProvider.totalDuration != Duration.zero;
+
+    if (song.id == _lyricsSongId) {
+      if (_waitingForDuration && hasDuration) {
+        _waitingForDuration = false;
+      } else {
+        return;
+      }
+    } else {
+      _lyricsSongId = song.id;
+      _waitingForDuration = !hasDuration;
+      if (_waitingForDuration) return;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<LyricsProvider>().loadLyrics(
+        song.artist,
+        song.title,
+        duration: audioProvider.totalDuration,
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final song = context.select<AudioPlayerProvider, SongModel?>((p) => p.currentSong);
+    final song = context.select<AudioPlayerProvider, SongModel?>(
+      (p) => p.currentSong,
+    );
 
     if (song == null) {
       return const Scaffold(
         backgroundColor: Colors.black,
-        body: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
       );
     }
 
@@ -70,7 +117,7 @@ class _BlurredBackground extends StatelessWidget {
           child: CachedNetworkImage(
             imageUrl: safeThumbnail,
             fit: BoxFit.cover,
-            errorWidget: (_, __, ___) => Container(color: AppColors.surface),
+            errorWidget: (_, error, stackTrace) => Container(color: AppColors.surface),
           ),
         ),
         Positioned.fill(
@@ -82,9 +129,9 @@ class _BlurredBackground extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withOpacity(0.5),
-                    Colors.black.withOpacity(0.8),
-                    Colors.black.withOpacity(0.95),
+                    Colors.black.withValues(alpha: 0.5),
+                    Colors.black.withValues(alpha: 0.8),
+                    Colors.black.withValues(alpha: 0.95),
                   ],
                 ),
               ),
@@ -114,7 +161,9 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sleepTimerMinutes = context.select<AudioPlayerProvider, int>((p) => p.sleepTimerMinutes);
+    final sleepTimerMinutes = context.select<AudioPlayerProvider, int>(
+      (p) => p.sleepTimerMinutes,
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -122,7 +171,11 @@ class _TopBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white, size: 36),
+            icon: const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: Colors.white,
+              size: 36,
+            ),
             onPressed: () => Navigator.pop(context),
           ),
           Text(
@@ -140,7 +193,9 @@ class _TopBar extends StatelessWidget {
               children: [
                 Icon(
                   Icons.timer_outlined,
-                  color: sleepTimerMinutes > 0 ? AppColors.primary : Colors.white,
+                  color: sleepTimerMinutes > 0
+                      ? AppColors.primary
+                      : Colors.white,
                   size: 28,
                 ),
                 if (sleepTimerMinutes > 0)
@@ -155,7 +210,11 @@ class _TopBar extends StatelessWidget {
                       ),
                       child: Text(
                         sleepTimerMinutes.toString(),
-                        style: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -174,7 +233,9 @@ class _SleepTimerSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentMinutes = context.select<AudioPlayerProvider, int>((p) => p.sleepTimerMinutes);
+    final currentMinutes = context.select<AudioPlayerProvider, int>(
+      (p) => p.sleepTimerMinutes,
+    );
     final options = [0, 15, 30, 45, 60];
 
     return Padding(
@@ -202,7 +263,9 @@ class _SleepTimerSheet extends StatelessWidget {
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
-              trailing: isSelected ? const Icon(Icons.check_circle, color: AppColors.primary) : null,
+              trailing: isSelected
+                  ? const Icon(Icons.check_circle, color: AppColors.primary)
+                  : null,
               onTap: () {
                 context.read<AudioPlayerProvider>().setSleepTimer(mins);
                 Navigator.pop(context);
@@ -226,7 +289,9 @@ class _AnimatedArtwork extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final safeThumbnail = _getSafeThumbnailUrl(song.id);
-    final isPlaying = context.select<AudioPlayerProvider, bool>((p) => p.isPlaying);
+    final isPlaying = context.select<AudioPlayerProvider, bool>(
+      (p) => p.isPlaying,
+    );
 
     return AnimatedScale(
       scale: isPlaying ? 1.0 : 0.85,
@@ -241,7 +306,7 @@ class _AnimatedArtwork extends StatelessWidget {
             borderRadius: BorderRadius.circular(32),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.6),
+                color: Colors.black.withValues(alpha: 0.6),
                 blurRadius: 40,
                 offset: const Offset(0, 20),
                 spreadRadius: isPlaying ? 5 : 0,
@@ -250,7 +315,7 @@ class _AnimatedArtwork extends StatelessWidget {
             image: DecorationImage(
               image: CachedNetworkImageProvider(safeThumbnail),
               fit: BoxFit.cover,
-              onError: (_, __) => const AssetImage('assets/images/placeholder.png'),
+              onError: (_, error) => const AssetImage('assets/images/placeholder.png'),
             ),
           ),
         ),
@@ -311,7 +376,9 @@ class _SongInfo extends StatelessWidget {
               final isFav = userData.favoriteSongs.any((s) => s.id == song.id);
               return IconButton(
                 icon: Icon(
-                  isFav ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+                  isFav
+                      ? Icons.favorite_rounded
+                      : Icons.favorite_outline_rounded,
                   size: 32,
                 ),
                 color: isFav ? AppColors.primary : Colors.white70,
@@ -339,13 +406,20 @@ class _ProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentPosition = context.select<AudioPlayerProvider, Duration>((p) => p.currentPosition);
-    final totalDuration = context.select<AudioPlayerProvider, Duration>((p) => p.totalDuration);
-    
-    final maxVal = totalDuration.inMilliseconds.toDouble() > 0 
-        ? totalDuration.inMilliseconds.toDouble() 
+    final currentPosition = context.select<AudioPlayerProvider, Duration>(
+      (p) => p.currentPosition,
+    );
+    final totalDuration = context.select<AudioPlayerProvider, Duration>(
+      (p) => p.totalDuration,
+    );
+
+    final maxVal = totalDuration.inMilliseconds.toDouble() > 0
+        ? totalDuration.inMilliseconds.toDouble()
         : 1.0;
-    final currentVal = currentPosition.inMilliseconds.toDouble().clamp(0.0, maxVal);
+    final currentVal = currentPosition.inMilliseconds.toDouble().clamp(
+      0.0,
+      maxVal,
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -357,9 +431,9 @@ class _ProgressBar extends StatelessWidget {
               thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
               overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
               activeTrackColor: AppColors.primary,
-              inactiveTrackColor: Colors.white.withOpacity(0.15),
+              inactiveTrackColor: Colors.white.withValues(alpha: 0.15),
               thumbColor: AppColors.primary,
-              overlayColor: AppColors.primary.withOpacity(0.2),
+              overlayColor: AppColors.primary.withValues(alpha: 0.2),
               trackShape: const RoundedRectSliderTrackShape(),
             ),
             child: Slider(
@@ -367,7 +441,9 @@ class _ProgressBar extends StatelessWidget {
               max: maxVal,
               value: currentVal,
               onChanged: (val) {
-                context.read<AudioPlayerProvider>().seek(Duration(milliseconds: val.toInt()));
+                context.read<AudioPlayerProvider>().seek(
+                  Duration(milliseconds: val.toInt()),
+                );
               },
             ),
           ),
@@ -376,8 +452,20 @@ class _ProgressBar extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(_formatDuration(currentPosition), style: GoogleFonts.dmMono(color: Colors.white54, fontSize: 13)),
-                Text(_formatDuration(totalDuration), style: GoogleFonts.dmMono(color: Colors.white54, fontSize: 13)),
+                Text(
+                  _formatDuration(currentPosition),
+                  style: GoogleFonts.dmMono(
+                    color: Colors.white54,
+                    fontSize: 13,
+                  ),
+                ),
+                Text(
+                  _formatDuration(totalDuration),
+                  style: GoogleFonts.dmMono(
+                    color: Colors.white54,
+                    fontSize: 13,
+                  ),
+                ),
               ],
             ),
           ),
@@ -401,7 +489,9 @@ class _MainControls extends StatelessWidget {
             children: [
               IconButton(
                 icon: const Icon(Icons.shuffle_rounded),
-                color: audioProvider.isShuffle ? AppColors.primary : Colors.white54,
+                color: audioProvider.isShuffle
+                    ? AppColors.primary
+                    : Colors.white54,
                 iconSize: 28,
                 onPressed: () => audioProvider.toggleShuffle(),
               ),
@@ -417,7 +507,7 @@ class _MainControls extends StatelessWidget {
                   color: AppColors.primary,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.4),
+                      color: AppColors.primary.withValues(alpha: 0.4),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     )
@@ -428,14 +518,19 @@ class _MainControls extends StatelessWidget {
                       ? const SizedBox(
                           width: 36,
                           height: 36,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 3,
+                          ),
                         )
                       : AnimatedSwitcher(
                           duration: const Duration(milliseconds: 300),
                           transitionBuilder: (child, animation) =>
                               ScaleTransition(scale: animation, child: child),
                           child: Icon(
-                            audioProvider.isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded,
+                            audioProvider.isPlaying
+                                ? Icons.pause_rounded
+                                : Icons.play_arrow_rounded,
                             key: ValueKey(audioProvider.isPlaying),
                           ),
                         ),
@@ -461,7 +556,9 @@ class _MainControls extends StatelessWidget {
                       ? Icons.repeat_one_rounded
                       : Icons.repeat_rounded,
                 ),
-                color: audioProvider.repeatMode > 0 ? AppColors.primary : Colors.white54,
+                color: audioProvider.repeatMode > 0
+                    ? AppColors.primary
+                    : Colors.white54,
                 iconSize: 28,
                 onPressed: () => audioProvider.toggleRepeat(),
               ),
@@ -499,6 +596,11 @@ class _BottomActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final song = context.select<AudioPlayerProvider, SongModel?>(
+      (p) => p.currentSong,
+    );
+    final hasVideo = song != null && song.availableModes.contains('video');
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 48.0),
       child: Row(
@@ -509,12 +611,35 @@ class _BottomActions extends StatelessWidget {
             color: Colors.white70,
             iconSize: 28,
             onPressed: () => _showQueueSheet(context),
+            tooltip: 'Queue',
           ),
+          if (hasVideo)
+            IconButton(
+              icon: const Icon(Icons.videocam_rounded),
+              color: Colors.white70,
+              iconSize: 28,
+              onPressed: () {
+                final audioProvider = context.read<AudioPlayerProvider>();
+                final currentPos = audioProvider.currentPosition;
+                audioProvider.pause();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => YouTubeVideoScreen(
+                      song: song,
+                      startPosition: currentPos,
+                    ),
+                  ),
+                );
+              },
+              tooltip: 'Switch to Video Mode',
+            ),
           IconButton(
             icon: const Icon(Icons.lyrics_outlined),
             color: Colors.white70,
             iconSize: 28,
             onPressed: () => _showLyricsSheet(context),
+            tooltip: 'Lyrics',
           ),
         ],
       ),
@@ -570,7 +695,10 @@ class _QueueSheet extends StatelessWidget {
                 final isPlaying = currentSong?.id == song.id;
 
                 return ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 8,
+                  ),
                   leading: ClipRRect(
                     borderRadius: BorderRadius.circular(8),
                     child: CachedNetworkImage(
@@ -578,14 +706,16 @@ class _QueueSheet extends StatelessWidget {
                       width: 50,
                       height: 50,
                       fit: BoxFit.cover,
-                      errorWidget: (_, __, ___) => Container(color: Colors.grey[800], width: 50, height: 50),
+                      errorWidget: (_, error, stackTrace) => Container(color: Colors.grey[800], width: 50, height: 50),
                     ),
                   ),
                   title: Text(
                     song.title,
                     style: GoogleFonts.dmSans(
                       color: isPlaying ? AppColors.primary : Colors.white,
-                      fontWeight: isPlaying ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isPlaying
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -596,14 +726,20 @@ class _QueueSheet extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  trailing: isPlaying 
-                    ? const Icon(Icons.equalizer_rounded, color: AppColors.primary)
-                    : IconButton(
-                        icon: const Icon(Icons.close_rounded, color: Colors.white38),
-                        onPressed: () {
-                          audioProvider.removeSongFromQueue(song);
-                        },
-                      ),
+                  trailing: isPlaying
+                      ? const Icon(
+                          Icons.equalizer_rounded,
+                          color: AppColors.primary,
+                        )
+                      : IconButton(
+                          icon: const Icon(
+                            Icons.close_rounded,
+                            color: Colors.white38,
+                          ),
+                          onPressed: () {
+                            audioProvider.removeSongFromQueue(song);
+                          },
+                        ),
                   onTap: () {
                     audioProvider.playSongAtIndex(index);
                     Navigator.pop(context);
@@ -621,17 +757,41 @@ class _QueueSheet extends StatelessWidget {
 class _LyricsSheet extends StatelessWidget {
   const _LyricsSheet();
 
+  void _loadLyrics(BuildContext context) {
+    final song = context.read<AudioPlayerProvider>().currentSong;
+    if (song == null) return;
+
+    final audioProvider = context.read<AudioPlayerProvider>();
+    context.read<LyricsProvider>().loadLyrics(
+      song.artist,
+      song.title,
+      duration: audioProvider.totalDuration == Duration.zero
+          ? null
+          : audioProvider.totalDuration,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final song = context.select<AudioPlayerProvider, SongModel?>(
+      (p) => p.currentSong,
+    );
+    final currentPosition = context.select<AudioPlayerProvider, Duration>(
+      (p) => p.currentPosition,
+    );
+    final lyricsStatus = context.select<LyricsProvider, LyricsStatus>(
+      (p) => p.status,
+    );
+
     return Container(
-      padding: const EdgeInsets.all(32),
+      height: MediaQuery.of(context).size.height * 0.7,
       decoration: const BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
+          const SizedBox(height: 16),
           Container(
             width: 40,
             height: 4,
@@ -640,30 +800,93 @@ class _LyricsSheet extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
             ),
           ),
-          const SizedBox(height: 32),
-          const Icon(Icons.lyrics_outlined, color: AppColors.primary, size: 64),
           const SizedBox(height: 24),
-          Text(
-            'Lyrics coming soon',
-            style: GoogleFonts.dmSans(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.music_note_rounded,
+                  color: AppColors.primary,
+                  size: 28,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        song?.title ?? 'Lyrics',
+                        style: GoogleFonts.dmSans(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        song?.artist ?? '',
+                        style: GoogleFonts.dmSans(
+                          color: AppColors.textMuted,
+                          fontSize: 14,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(
+                    Icons.refresh_rounded,
+                    color: Colors.white60,
+                  ),
+                  onPressed: song == null ? null : () => _loadLyrics(context),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            'We are working on integrating a real-time lyrics API to sing along with your favorite tracks.',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.dmSans(
-              color: Colors.white70,
-              fontSize: 16,
-              height: 1.5,
-            ),
+          const Divider(color: AppColors.borderDefault, height: 1),
+          Expanded(
+            child: lyricsStatus == LyricsStatus.idle && song != null
+                ? _LyricsLoader(onLoad: () => _loadLyrics(context))
+                : SyncedLyricsView(
+                    position: currentPosition,
+                    onSeek: (timestamp) {
+                      context.read<AudioPlayerProvider>().seek(timestamp);
+                    },
+                  ),
           ),
-          const SizedBox(height: 32),
         ],
       ),
+    );
+  }
+}
+
+class _LyricsLoader extends StatefulWidget {
+  final VoidCallback onLoad;
+
+  const _LyricsLoader({required this.onLoad});
+
+  @override
+  State<_LyricsLoader> createState() => _LyricsLoaderState();
+}
+
+class _LyricsLoaderState extends State<_LyricsLoader> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.onLoad();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: CircularProgressIndicator(color: AppColors.primary),
     );
   }
 }

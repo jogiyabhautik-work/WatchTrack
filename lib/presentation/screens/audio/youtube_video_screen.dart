@@ -16,12 +16,18 @@ class YouTubeVideoScreen extends StatefulWidget {
   final SongModel? song;
   final String? videoId;
   final Duration? startPosition;
+  final String? title;
+  final String? artist;
+  final bool isTrailer;
 
   const YouTubeVideoScreen({
     super.key,
     this.song,
     this.videoId,
     this.startPosition,
+    this.title,
+    this.artist,
+    this.isTrailer = false,
   });
 
   @override
@@ -129,8 +135,8 @@ class _YouTubeVideoScreenState extends State<YouTubeVideoScreen> {
     
     final finalSong = widget.song ?? SongModel.create(
       id: widget.videoId ?? '',
-      title: 'YouTube Track',
-      artist: 'YouTube Video',
+      title: widget.title ?? 'Track',
+      artist: widget.artist ?? (widget.isTrailer ? 'by YouTube' : 'Video'),
       type: SongType.soundtrack,
       source: SongSource.youtube,
     );
@@ -158,8 +164,8 @@ class _YouTubeVideoScreenState extends State<YouTubeVideoScreen> {
     final userDataProvider = context.read<UserDataProvider>();
     final song = widget.song ?? SongModel.create(
       id: widget.videoId ?? '',
-      title: 'YouTube Track',
-      artist: 'YouTube Video',
+      title: widget.title ?? 'Trailer',
+      artist: widget.artist ?? (widget.isTrailer ? 'by YouTube' : 'Video'),
       type: SongType.soundtrack,
       source: SongSource.youtube,
     );
@@ -558,12 +564,12 @@ class _YouTubeVideoScreenState extends State<YouTubeVideoScreen> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.link_rounded, color: Colors.white),
-                  title: Text('Copy YouTube Link', style: GoogleFonts.dmSans(color: Colors.white)),
+                  title: Text('Copy Link', style: GoogleFonts.dmSans(color: Colors.white)),
                   onTap: () {
                     Navigator.pop(context);
                     Clipboard.setData(ClipboardData(text: 'https://youtube.com/watch?v=${song.id}'));
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('YouTube link copied to clipboard!')),
+                      const SnackBar(content: Text('Link copied to clipboard!')),
                     );
                   },
                 ),
