@@ -21,6 +21,7 @@ import 'package:watch_track/core/providers/tracking_provider.dart';
 import 'package:watch_track/presentation/screens/home/see_all_screen.dart';
 import 'package:watch_track/presentation/screens/profile/profile_screen.dart';
 import 'package:watch_track/presentation/screens/watchlist/watchlist_screen.dart';
+import 'package:watch_track/presentation/screens/downloads/downloads_screen.dart';
 import 'package:watch_track/presentation/widgets/watchlist_action_sheet.dart';
 import 'package:watch_track/presentation/widgets/binge_planner.dart';
 import 'package:watch_track/presentation/screens/anime/anime_home_screen.dart';
@@ -145,32 +146,41 @@ class _HomeScreenState extends State<HomeScreen> {
                                           letterSpacing: 2,
                                         ),
                                       ),
-                                      GestureDetector(
-                                        onTap: () => _safeNavigate(const ProfileScreen()),
-                                        behavior: HitTestBehavior.opaque,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Consumer<UserDataProvider>(
-                                            builder: (context, userData, _) {
-                                              final pfp = userData.pfpUrl;
-                                              if (pfp != null && pfp.isNotEmpty) {
-                                                return Container(
-                                                  width: 32,
-                                                  height: 32,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    border: Border.all(color: AppColors.primary, width: 1.5),
-                                                    image: DecorationImage(
-                                                      image: CachedNetworkImageProvider(pfp),
-                                                      fit: BoxFit.cover,
-                                                    ),
-                                                  ),
-                                                );
-                                              }
-                                              return const Icon(Icons.person_outline_rounded, color: AppColors.primary, size: 28);
-                                            },
+                                      Row(
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(Icons.download_for_offline_rounded, color: AppColors.primary, size: 28),
+                                            onPressed: () => _safeNavigate(const DownloadsScreen()),
                                           ),
-                                        ),
+                                          const SizedBox(width: 8),
+                                          GestureDetector(
+                                            onTap: () => _safeNavigate(const ProfileScreen()),
+                                            behavior: HitTestBehavior.opaque,
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: Consumer<UserDataProvider>(
+                                                builder: (context, userData, _) {
+                                                  final pfp = userData.pfpUrl;
+                                                  if (pfp != null && pfp.isNotEmpty) {
+                                                    return Container(
+                                                      width: 32,
+                                                      height: 32,
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        border: Border.all(color: AppColors.primary, width: 1.5),
+                                                        image: DecorationImage(
+                                                          image: CachedNetworkImageProvider(pfp),
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }
+                                                  return const Icon(Icons.person_outline_rounded, color: AppColors.primary, size: 28);
+                                                },
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),

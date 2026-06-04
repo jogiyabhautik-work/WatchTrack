@@ -8,6 +8,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:watch_track/core/utils/adaptive_theme_helper.dart';
+import 'package:watch_track/presentation/widgets/free_streams_section.dart';
 import 'package:watch_track/data/models/movie_model.dart';
 import 'package:watch_track/back-end/api_service.dart';
 import 'package:watch_track/core/providers/tracking_provider.dart';
@@ -150,6 +152,8 @@ class _AnimeDetailScreenState extends State<AnimeDetailScreen> {
                         const SizedBox(height: 32),
                         if (_selectedTab == 0) ...[
                           _buildSynopsis(anime),
+                          const SizedBox(height: 32),
+                          FreeStreamsSection(movie: anime),
                           const SizedBox(height: 32),
                           _buildUserRatingSection(anime),
                           const SizedBox(height: 48),

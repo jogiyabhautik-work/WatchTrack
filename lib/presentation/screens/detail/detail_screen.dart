@@ -25,6 +25,7 @@ import 'package:watch_track/presentation/widgets/watchlist_action_sheet.dart';
 import 'package:watch_track/core/utils/adaptive_theme_helper.dart';
 import 'package:watch_track/features/soundtrack/presentation/widgets/songs_section.dart';
 import 'package:watch_track/presentation/widgets/global_trailer_player.dart';
+import 'package:watch_track/presentation/widgets/free_streams_section.dart';
 
 class DetailScreen extends StatefulWidget {
   final Movie movie;
@@ -1169,6 +1170,10 @@ class _DetailScreenState extends State<DetailScreen> {
         const SizedBox(height: 24),
         _buildActionButtons(movie),
         const SizedBox(height: 16),
+        if (movie.isMovie) ...[
+          FreeStreamsSection(movie: movie),
+          const SizedBox(height: 24),
+        ],
         _buildUserRatingSection(movie),
         if (_isLoadingDetails)
           _buildSectionSkeleton(40)

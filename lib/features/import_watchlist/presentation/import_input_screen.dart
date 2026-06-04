@@ -97,7 +97,7 @@ class _ImportInputScreenState extends State<ImportInputScreen> {
             const SizedBox(height: 24),
             OutlinedButton.icon(
               onPressed: () {
-                context.read<WatchlistImportProvider>().startImport();
+                context.read<WatchlistImportProvider>().startImportFromFile();
                 _navigateToReview();
               },
               icon: const Icon(Icons.file_upload, color: Colors.white),
