@@ -13,8 +13,10 @@ import 'package:watch_track/presentation/screens/detail/detail_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:watch_track/core/appwrite_setup.dart';
-import 'package:watch_track/features/import_watchlist/presentation/import_review_screen.dart';
-import 'package:watch_track/features/import_watchlist/presentation/watchlist_import_provider.dart';
+import 'package:watch_track/presentation/screens/profile/edit_profile_screen.dart';
+import 'package:watch_track/presentation/screens/profile/about_screen.dart';
+import 'package:watch_track/presentation/screens/profile/account_settings_screen.dart';
+import 'package:intl/intl.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -31,8 +33,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final bg = Theme.of(context).scaffoldBackgroundColor;
+    final surface = Theme.of(context).colorScheme.surface;
+    final text = Theme.of(context).colorScheme.onSurface;
+    final textMuted = text.withOpacity(0.6);
+    final border = Theme.of(context).brightness == Brightness.dark ? AppColors.borderDefault : Colors.grey.shade300;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: bg,
       body: Stack(
         children: [
           // Background gradient
@@ -55,7 +63,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             builder: (context, auth, userData, child) {
               return RefreshIndicator(
                 onRefresh: _handleRefresh,
-                backgroundColor: AppColors.surface,
+                backgroundColor: surface,
                 color: AppColors.primary,
                 displacement: 40,
                 child: SingleChildScrollView(
@@ -131,9 +139,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 60, 20, 30),
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(32),
           bottomRight: Radius.circular(32),
         ),
@@ -154,7 +162,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       CircleAvatar(
                         radius: 35,
-                        backgroundColor: AppColors.surface,
+                        backgroundColor: Theme.of(context).colorScheme.surface,
                         child: ClipOval(
                           child: userData.pfpUrl != null
                               ? SvgPicture.network(
@@ -200,7 +208,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Text(
                       user?.name ?? 'Anonymous User',
                       style: GoogleFonts.dmSans(
-                        color: Colors.white,
+                        color: Theme.of(context).colorScheme.onSurface,
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
@@ -209,10 +217,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Text(
                       user?.email ?? 'Free Member',
                       style: GoogleFonts.dmSans(
-                        color: AppColors.textMuted,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                         fontSize: 12,
                       ),
                     ),
+                    if (user != null && user.registration != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Member since ${DateFormat.yMMMd().format(DateTime.parse(user.registration))}',
+                        style: GoogleFonts.dmSans(
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                          fontSize: 10,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                    if (user != null && !user.emailVerification) ...[
+                      const SizedBox(height: 8),
+                      GestureDetector(
+                        onTap: () async {
+                          final success = await auth.sendEmailVerification();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(success ? 'Verification email sent!' : (auth.error ?? 'Error sending email')),
+                                backgroundColor: success ? Colors.green : Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: Colors.orange.withOpacity(0.5)),
+                          ),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.warning_amber_rounded, size: 12, color: Colors.orange),
+                              SizedBox(width: 4),
+                              Text('Unverified (Tap to verify)', style: TextStyle(color: Colors.orange, fontSize: 10)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -251,7 +302,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Text(
             label.toUpperCase(),
             style: GoogleFonts.dmSans(
-              color: AppColors.textMuted,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
               fontSize: 10,
               fontWeight: FontWeight.bold,
             ),
@@ -265,7 +316,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       width: 0.5,
       height: 30,
-      color: AppColors.borderDefault,
+      color: Theme.of(context).brightness == Brightness.dark ? AppColors.borderDefault : Colors.grey.shade300,
     );
   }
 
@@ -285,12 +336,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
+          border: Border.all(
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white.withOpacity(0.05)
+                  : Colors.black.withOpacity(0.05),
+              width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withOpacity(0.1),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -306,7 +361,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Text(
                   'BINGE ANALYTICS',
                   style: GoogleFonts.dmSans(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onSurface,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 2,
@@ -345,7 +400,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     Text(
                       'LOYALTY LEVEL: BINGE MASTER',
-                      style: GoogleFonts.dmSans(color: AppColors.textMuted, fontSize: 9, fontWeight: FontWeight.bold),
+                      style: GoogleFonts.dmSans(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontSize: 9, fontWeight: FontWeight.bold),
                     ),
                     Text(
                       'XP: ${watched.length * 100}/1000',
@@ -379,7 +434,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Text(
           value,
           style: GoogleFonts.playfairDisplay(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
@@ -388,7 +443,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Text(
           label,
           style: GoogleFonts.dmSans(
-            color: AppColors.textMuted,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
             fontSize: 8,
             fontWeight: FontWeight.bold,
             letterSpacing: 1,
@@ -423,7 +478,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Text(
             title,
             style: GoogleFonts.dmSans(
-              color: AppColors.textMuted,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
               fontSize: 10,
               letterSpacing: 2,
               fontWeight: FontWeight.bold,
@@ -472,7 +527,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     width: 100,
                     height: 130,
                     fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(color: AppColors.surface),
+                    placeholder: (context, url) => Container(color: Theme.of(context).colorScheme.surface),
                   ),
                   if (title.status == TrackingStatus.watching)
                     Positioned(
@@ -492,7 +547,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 8),
             Text(
               title.title,
-              style: GoogleFonts.dmSans(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w500),
+              style: GoogleFonts.dmSans(color: Theme.of(context).colorScheme.onSurface, fontSize: 11, fontWeight: FontWeight.w500),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -511,9 +566,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Padding(
             padding: const EdgeInsets.only(left: 4.0),
             child: Text(
-              'PREFERENCES',
+              'ACCOUNT',
               style: GoogleFonts.dmSans(
-                color: AppColors.textMuted,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                 fontSize: 10,
                 letterSpacing: 2,
                 fontWeight: FontWeight.bold,
@@ -522,14 +577,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 12),
           _buildPreferenceTile(
-            icon: Icons.upload_file_rounded,
-            title: 'Smart Watchlist Import',
+            icon: Icons.person_outline,
+            title: 'Edit Profile',
             trailing: const Icon(Icons.arrow_forward_ios, color: AppColors.textMuted, size: 14),
-            onTap: () => _showImportOptionsSheet(context),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
+            },
           ),
           _buildPreferenceTile(
+            icon: Icons.security_outlined,
+            title: 'Account Settings',
+            trailing: const Icon(Icons.arrow_forward_ios, color: AppColors.textMuted, size: 14),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const AccountSettingsScreen()));
+            },
+          ),
+          const SizedBox(height: 32),
+          Padding(
+            padding: const EdgeInsets.only(left: 4.0),
+            child: Text(
+              'PREFERENCES',
+              style: GoogleFonts.dmSans(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                fontSize: 10,
+                letterSpacing: 2,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _buildPreferenceTile(
+            context: context,
             icon: Icons.dark_mode_outlined,
             title: 'Dark Mode',
+            onTap: () => context.read<ThemeProvider>().toggleTheme(),
             trailing: Consumer<ThemeProvider>(
               builder: (context, theme, child) => Switch(
                 value: theme.isDarkMode,
@@ -539,74 +620,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           _buildPreferenceTile(
-            icon: Icons.notifications_none_outlined,
-            title: 'Notifications',
-            trailing: Switch(
-              value: true,
-              onChanged: (v) {},
-              activeColor: AppColors.primary,
-            ),
-          ),
-          _buildPreferenceTile(
-            icon: Icons.language_outlined,
-            title: 'Language',
-            trailing: Text(
-              'English ›',
-              style: GoogleFonts.dmSans(color: AppColors.textMuted, fontSize: 13),
-            ),
-          ),
-          _buildPreferenceTile(
+            context: context,
             icon: Icons.info_outline,
-            title: 'About Track-n-Tube',
-            trailing: Text(
-              '›',
-              style: GoogleFonts.dmSans(color: AppColors.textMuted, fontSize: 18),
-            ),
+            title: 'About Track & Tube',
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const AboutScreen()));
+            },
+            trailing: Icon(Icons.arrow_forward_ios, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), size: 14),
           ),
-          const SizedBox(height: 32),
-          Padding(
-            padding: const EdgeInsets.only(left: 4.0),
-            child: Text(
-              'DEVELOPER TOOLS',
-              style: GoogleFonts.dmSans(
-                color: AppColors.textMuted,
-                fontSize: 10,
-                letterSpacing: 2,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          _buildPreferenceTile(
-            icon: Icons.storage_rounded,
-            title: 'Initialize Database Schema',
-            trailing: const Icon(Icons.auto_fix_high_rounded, color: AppColors.primary, size: 18),
-            onTap: () => _showDatabaseFixDialog(context),
-          ),
+
         ],
       ),
     );
   }
 
   Widget _buildPreferenceTile({
+    BuildContext? context,
     required IconData icon,
     required String title,
     required Widget trailing,
     VoidCallback? onTap,
   }) {
+    final textMuted = context != null ? Theme.of(context).colorScheme.onSurface.withOpacity(0.6) : AppColors.textMuted;
+    final text = context != null ? Theme.of(context).colorScheme.onSurface : Colors.white;
+    final border = context != null 
+        ? (Theme.of(context).brightness == Brightness.dark ? AppColors.borderDefault : Colors.grey.shade300)
+        : AppColors.borderDefault;
+
     return Column(
       children: [
         ListTile(
           onTap: onTap,
           contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-          leading: Icon(icon, color: AppColors.textMuted, size: 18),
+          leading: Icon(icon, color: textMuted, size: 18),
           title: Text(
             title,
-            style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
+            style: GoogleFonts.dmSans(color: text, fontSize: 14),
           ),
           trailing: trailing,
         ),
-        const Divider(color: AppColors.borderDefault, height: 0.5),
+        Divider(color: border, height: 0.5),
       ],
     );
   }
@@ -653,7 +706,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   itemBuilder: (context, index) {
                     final style = styles[index];
                     final previewUrl =
-                        'https://api.dicebear.com/7.x/${style['style']}/svg?seed=WatchTrack';
+                        'https://api.dicebear.com/7.x/${style['style']}/svg?seed=TrackTube';
 
                     return GestureDetector(
                       onTap: () {
@@ -714,190 +767,4 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showImportOptionsSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'IMPORT METHOD',
-                style: GoogleFonts.dmSans(
-                  color: AppColors.textMuted,
-                  fontSize: 10,
-                  letterSpacing: 2,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 20),
-              ListTile(
-                leading: const Icon(Icons.upload_file, color: AppColors.primary),
-                title: Text('Import from File', style: GoogleFonts.dmSans(color: Colors.white)),
-                subtitle: Text('Upload a CSV or TXT file', style: GoogleFonts.dmSans(color: AppColors.textMuted, fontSize: 12)),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const ImportReviewScreen()),
-                  );
-                  context.read<WatchlistImportProvider>().startImportFromFile();
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.paste, color: AppColors.primary),
-                title: Text('Paste Text', style: GoogleFonts.dmSans(color: Colors.white)),
-                subtitle: Text('Paste a list of movie/show titles', style: GoogleFonts.dmSans(color: AppColors.textMuted, fontSize: 12)),
-                onTap: () {
-                  Navigator.pop(context);
-                  _showPasteTextDialog(context);
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showPasteTextDialog(BuildContext context) {
-    final TextEditingController textController = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: Text('Paste Titles', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold)),
-        content: TextField(
-          controller: textController,
-          maxLines: 8,
-          style: const TextStyle(color: Colors.white),
-          decoration: InputDecoration(
-            hintText: 'Movie/Show Title 1\nMovie/Show Title 2\n...',
-            hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
-            border: OutlineInputBorder(borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
-            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('CANCEL', style: GoogleFonts.dmSans(color: AppColors.textMuted)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            onPressed: () {
-              final text = textController.text.trim();
-              if (text.isEmpty) return;
-
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ImportReviewScreen()),
-              );
-              context.read<WatchlistImportProvider>().startImportFromText(text);
-            },
-            child: Text('IMPORT', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showDatabaseFixDialog(BuildContext context) {
-    final TextEditingController apiCtrl = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        title: Text('Database Setup',
-            style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'This will automatically create missing attributes in your Appwrite collections.',
-              style: GoogleFonts.dmSans(color: AppColors.textMuted, fontSize: 13),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: apiCtrl,
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: 'Enter Appwrite API Key',
-                hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
-                enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Create an API Key in Appwrite Console with "databases.write" scope.',
-              style: GoogleFonts.dmSans(
-                  color: Colors.amberAccent.withOpacity(0.8), fontSize: 11),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('CANCEL', style: GoogleFonts.dmSans(color: AppColors.textMuted)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            onPressed: () async {
-              final key = apiCtrl.text.trim();
-              if (key.isEmpty) return;
-
-              Navigator.pop(context);
-              _runDatabaseFix(context, key);
-            },
-            child: Text('START SETUP',
-                style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _runDatabaseFix(BuildContext context, String apiKey) async {
-    // Show loading
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('⏳ Initializing schema...')),
-    );
-
-    try {
-      final manager = AppwriteSchemaManager(
-        endpoint: "https://sgp.cloud.appwrite.io/v1",
-        projectId: "693d20f1002b63c1bffd",
-        apiKey: apiKey,
-      );
-
-      await manager.setupSchema();
-
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('✅ Database schema updated! Restarting sync...'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } catch (e) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('❌ Setup failed: $e'),
-          backgroundColor: Colors.redAccent,
-        ),
-      );
-    }
-  }
 }

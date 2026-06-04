@@ -21,27 +21,32 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:watch_track/core/appwrite_setup.dart';
 import 'package:watch_track/core/providers/audio_player_provider.dart';
 import 'package:watch_track/core/providers/lyrics_provider.dart';
-import 'package:just_audio_background/just_audio_background.dart';
+import 'package:audio_service/audio_service.dart';
+import 'package:watch_track/core/services/audio_handler.dart';
+import 'package:app_links/app_links.dart';
+import 'dart:async';
+import 'package:watch_track/presentation/screens/auth/reset_password_screen.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+late AudioHandler audioHandler;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await JustAudioBackground.init(
-    androidNotificationChannelId: 'com.watchtrack.app.channel.audio',
-    androidNotificationChannelName: 'Audio playback',
-    androidNotificationOngoing: true,
-    androidNotificationIcon: 'mipmap/launcher_icon',
-    notificationColor: const Color(0xFFD81F26), // AppTheme Primary Red
-    androidStopForegroundOnPause: true,
+  audioHandler = await AudioService.init(
+    builder: () => SoundtrackAudioHandler(),
+    config: const AudioServiceConfig(
+      androidNotificationChannelId: 'com.watchtrack.app.channel.audio',
+      androidNotificationChannelName: 'Audio playback',
+      androidNotificationOngoing: true,
+      androidStopForegroundOnPause: true,
+      androidNotificationIcon: 'mipmap/launcher_icon',
+    ),
   );
 
   await dotenv.load(fileName: ".env");
 
-  // Automate Appwrite schema verification in background to prevent blocking splash screen
-  AppwriteSchemaManager.setupIfAvailable().catchError((e, stackTrace) {
-    debugPrint('⚠️ Appwrite schema setup failed or skipped: $e');
-    debugPrint(stackTrace.toString());
-  });
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -110,35 +115,94 @@ Future<void> main() async {
         ),
         ChangeNotifierProvider(create: (_) => RecommendationProvider()),
       ],
-      child: const CineTrackApp(),
+      child: const TrackTubeApp(),
     ),
   );
 }
 
-class CineTrackApp extends StatelessWidget {
-  const CineTrackApp({super.key});
+class TrackTubeApp extends StatefulWidget {
+  const TrackTubeApp({super.key});
+
+  @override
+  State<TrackTubeApp> createState() => _TrackTubeAppState();
+}
+
+class _TrackTubeAppState extends State<TrackTubeApp> {
+  late AppLinks _appLinks;
+  StreamSubscription<Uri>? _linkSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _initDeepLinks();
+  }
+
+  Future<void> _initDeepLinks() async {
+    _appLinks = AppLinks();
+
+    try {
+      final initialUri = await _appLinks.getInitialLink();
+      if (initialUri != null) {
+        _handleDeepLink(initialUri);
+      }
+    } catch (e) {
+      debugPrint('Failed to get initial app link: $e');
+    }
+
+    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
+      _handleDeepLink(uri);
+    }, onError: (err) {
+      debugPrint('Failed to handle app link: $err');
+    });
+  }
+
+  void _handleDeepLink(Uri uri) {
+    if (uri.host == 'reset-password') {
+      final userId = uri.queryParameters['userId'];
+      final secret = uri.queryParameters['secret'];
+      
+      if (userId != null && secret != null) {
+        // Adding a slight delay to ensure the navigator is fully mounted
+        Future.delayed(const Duration(milliseconds: 500), () {
+          navigatorKey.currentState?.push(
+            MaterialPageRoute(
+              builder: (context) => ResetPasswordScreen(
+                userId: userId,
+                secret: secret,
+              ),
+            ),
+          );
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeProvider>(
       builder: (context, themeProvider, child) {
         return MaterialApp(
-          title: 'CINE Track',
+          navigatorKey: navigatorKey,
+          title: 'Track & Tube',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: themeProvider.themeMode,
           home: Consumer<AuthProvider>(
             builder: (context, auth, _) {
-              if (auth.status == AuthStatus.authenticated) {
+              if (auth.status == AuthStatus.authenticatedOnline || 
+                  auth.status == AuthStatus.authenticatedOffline) {
                 return const MainScreen();
               }
-              // Only show splash screen on initial check
               if (auth.status == AuthStatus.initial) {
                 return const PremiumSplashScreen();
               }
-              // Default to LoginScreen for unauthenticated and authenticating states
-              // so the user can see loading indicators on the login/register buttons
               return const LoginScreen();
             },
           ),

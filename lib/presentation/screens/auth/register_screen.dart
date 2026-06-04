@@ -17,6 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -41,17 +42,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Center(
-                  child: const Icon(Icons.movie_creation_rounded, color: Colors.white, size: 60),
-                ),
-                const SizedBox(height: 24),
-                Text(
-                  'WATCH TRACK',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.dmSans(
-                    color: AppColors.primary,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 4,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.asset('assets/logo/logo.png', height: 100),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -106,11 +99,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _passwordController,
-                        obscureText: true,
+                        obscureText: _obscurePassword,
                         style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'Password',
-                          prefixIcon: Icon(Icons.lock_outline, color: Colors.white54),
+                          prefixIcon: const Icon(Icons.lock_outline, color: Colors.white54),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                              color: Colors.white38,
+                              size: 20,
+                            ),
+                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                          ),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) return 'Password is required';

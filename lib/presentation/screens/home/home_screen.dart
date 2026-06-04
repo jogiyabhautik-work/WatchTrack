@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:watch_track/back-end/api_service.dart';
@@ -137,14 +138,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        'WATCH TRACK',
-                                        style: GoogleFonts.playfairDisplay(
-                                          color: AppColors.primary,
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 2,
-                                        ),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Image.asset('assets/logo/logo.png', height: 40),
                                       ),
                                       Row(
                                         children: [
@@ -163,19 +159,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   final pfp = userData.pfpUrl;
                                                   if (pfp != null && pfp.isNotEmpty) {
                                                     return Container(
-                                                      width: 32,
-                                                      height: 32,
+                                                      width: 48,
+                                                      height: 48,
                                                       decoration: BoxDecoration(
                                                         shape: BoxShape.circle,
-                                                        border: Border.all(color: AppColors.primary, width: 1.5),
-                                                        image: DecorationImage(
-                                                          image: CachedNetworkImageProvider(pfp),
-                                                          fit: BoxFit.cover,
-                                                        ),
+                                                        border: Border.all(color: AppColors.primary, width: 2),
+                                                      ),
+                                                      child: ClipOval(
+                                                        child: pfp.contains('.svg') || pfp.contains('dicebear')
+                                                          ? SvgPicture.network(pfp, fit: BoxFit.cover)
+                                                          : CachedNetworkImage(imageUrl: pfp, fit: BoxFit.cover),
                                                       ),
                                                     );
                                                   }
-                                                  return const Icon(Icons.person_outline_rounded, color: AppColors.primary, size: 28);
+                                                  return const Icon(Icons.person_outline_rounded, color: AppColors.primary, size: 36);
                                                 },
                                               ),
                                             ),

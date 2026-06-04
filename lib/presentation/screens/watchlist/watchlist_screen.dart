@@ -10,7 +10,8 @@ import 'package:watch_track/core/providers/watchlist_folder_provider.dart';
 import 'package:watch_track/presentation/screens/watchlist/watchlist_detail_screen.dart';
 import 'package:watch_track/data/models/user_title_model.dart';
 import 'package:watch_track/data/models/movie_model.dart';
-
+import 'package:watch_track/features/import_watchlist/presentation/import_review_screen.dart';
+import 'package:watch_track/features/import_watchlist/presentation/watchlist_import_provider.dart';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // WATCHLIST SCREEN
@@ -692,6 +693,10 @@ class _WatchlistScreenState extends State<WatchlistScreen>
           )
         else ...[
           IconButton(
+            icon: Icon(Icons.upload_file_rounded, color: Colors.white.withOpacity(0.85)),
+            onPressed: () => _showImportOptionsSheet(context),
+          ),
+          IconButton(
             icon: Icon(Icons.search_rounded,
                 color: Colors.white.withOpacity(0.85)),
             onPressed: () => setState(() => _searchActive = true),
@@ -1154,6 +1159,101 @@ class _WatchlistScreenState extends State<WatchlistScreen>
           Navigator.pop(context);
           onSave(name, emoji);
         },
+      ),
+    );
+  }
+  void _showImportOptionsSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'IMPORT METHOD',
+                style: GoogleFonts.dmSans(
+                  color: AppColors.textMuted,
+                  fontSize: 10,
+                  letterSpacing: 2,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              ListTile(
+                leading: const Icon(Icons.upload_file, color: AppColors.primary),
+                title: Text('Import from File', style: GoogleFonts.dmSans(color: Colors.white)),
+                subtitle: Text('Upload a CSV or TXT file', style: GoogleFonts.dmSans(color: AppColors.textMuted, fontSize: 12)),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ImportReviewScreen()),
+                  );
+                  context.read<WatchlistImportProvider>().startImportFromFile();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.paste, color: AppColors.primary),
+                title: Text('Paste Text', style: GoogleFonts.dmSans(color: Colors.white)),
+                subtitle: Text('Paste a list of movie/show titles', style: GoogleFonts.dmSans(color: AppColors.textMuted, fontSize: 12)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showPasteTextDialog(context);
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showPasteTextDialog(BuildContext context) {
+    final TextEditingController textController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        title: Text('Paste Titles', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold)),
+        content: TextField(
+          controller: textController,
+          maxLines: 8,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: 'Movie/Show Title 1\nMovie/Show Title 2\n...',
+            hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+            border: OutlineInputBorder(borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
+            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('CANCEL', style: GoogleFonts.dmSans(color: AppColors.textMuted)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+            onPressed: () {
+              final text = textController.text.trim();
+              if (text.isEmpty) return;
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ImportReviewScreen()),
+              );
+              context.read<WatchlistImportProvider>().startImportFromText(text);
+            },
+            child: Text('IMPORT', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
       ),
     );
   }

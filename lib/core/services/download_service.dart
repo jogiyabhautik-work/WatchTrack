@@ -156,7 +156,7 @@ class DownloadService {
 
       if (canSaveToGallery) {
         try {
-          await Gal.putVideo(downloadPath, album: 'WatchTrack');
+          await Gal.putVideo(downloadPath, album: 'Track & Tube');
         } catch (galleryError) {
           debugPrint('Gallery save error: $galleryError');
         }

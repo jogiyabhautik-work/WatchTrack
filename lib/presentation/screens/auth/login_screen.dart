@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:watch_track/core/constants/app_colors.dart';
 import 'package:watch_track/core/providers/auth_provider.dart';
 import 'package:watch_track/presentation/screens/auth/register_screen.dart';
+import 'package:watch_track/presentation/screens/auth/forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -18,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _rememberMe = false;
+  bool _obscurePassword = true;
   int _cooldownSeconds = 0;
   Timer? _timer;
   
@@ -64,31 +66,9 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withOpacity(0.2),
-                          blurRadius: 40,
-                          spreadRadius: 5,
-                        ),
-                      ],
-                    ),
-                    child: const Icon(Icons.movie_creation_rounded, color: Colors.white, size: 80),
-                  ),
-                ),
-                const SizedBox(height: 16),
-
-                Text(
-                  'WATCH TRACK',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.dmSans(
-                    color: AppColors.primary,
-                    fontSize: 42,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 4,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.asset('assets/logo/logo.png', height: 120),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -120,11 +100,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _passwordController,
-                        obscureText: true,
+                        obscureText: _obscurePassword,
                         style: const TextStyle(color: Colors.white),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           hintText: 'Password',
-                          prefixIcon: Icon(Icons.lock_outline, color: Colors.white54),
+                          prefixIcon: const Icon(Icons.lock_outline, color: Colors.white54),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                              color: Colors.white38,
+                              size: 20,
+                            ),
+                            onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                          ),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) return 'Password is required';
@@ -154,9 +142,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     TextButton(
                       onPressed: () {
-                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Password reset feature coming soon!')),
-                        );
+                         Navigator.of(context).push(
+                           MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
+                         );
                       },
                       style: TextButton.styleFrom(padding: EdgeInsets.zero),
                       child: const Text('Forgot Password?', style: TextStyle(color: Colors.white70, fontSize: 13)),

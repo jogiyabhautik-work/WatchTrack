@@ -22,6 +22,21 @@ class YouTubeProvider implements StreamProvider {
 
       for (var video in searchResults.take(30)) {
         if (video.duration != null) {
+          final t = video.title.toLowerCase();
+          
+          // Reject typical non-movie YouTube videos (reviews, recaps, podcasts, music, etc.)
+          if (t.contains('reaction') || t.contains('review') || 
+              t.contains('recap') || t.contains('explained') || 
+              t.contains('trailer') || t.contains('teaser') ||
+              t.contains('podcast') || t.contains('breakdown') || 
+              t.contains('interview') || t.contains('behind the scenes') ||
+              t.contains('making of') || t.contains('soundtrack') || 
+              t.contains('ost') || t.contains('mix') || t.contains('album') ||
+              t.contains('playlist') || t.contains('parody') || t.contains('fanmade') || 
+              t.contains('concept') || t.contains('gameplay') || t.contains('cutscenes')) {
+            continue;
+          }
+
           final diff = (video.duration!.inMinutes - targetDuration).abs();
           // If TMDB runtime is unknown (0), assume any video over 60 mins is a movie.
           // Otherwise, allow up to 45 mins difference.

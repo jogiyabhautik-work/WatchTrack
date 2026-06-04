@@ -27,7 +27,7 @@ void main() async {
 
   try {
     print('Attempting to create database "watchtrack_main"...');
-    final db = await databases.create(databaseId: 'watchtrack_main', name: 'WatchTrack');
+    final db = await databases.create(databaseId: 'watchtrack_main', name: 'Track & Tube');
     print('Successfully created database: ${db.$id}');
   } catch (e) {
     print('Error creating database: $e');

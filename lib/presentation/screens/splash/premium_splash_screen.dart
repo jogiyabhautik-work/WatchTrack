@@ -71,32 +71,11 @@ class _PremiumSplashScreenState extends State<PremiumSplashScreen> with SingleTi
                 children: [
                   ScaleTransition(
                     scale: _scaleAnimation,
-                    child: ShaderMask(
-                      shaderCallback: (bounds) {
-                        final shimmerPos = (_shimmerAnimation.value + 2.0) / 4.0;
-                        return LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            Colors.white.withOpacity(0.15),
-                            Colors.white,
-                            AppColors.primary,
-                            Colors.white,
-                            Colors.white.withOpacity(0.15),
-                          ],
-                          stops: [
-                            (shimmerPos - 0.35).clamp(0.0, 1.0),
-                            (shimmerPos - 0.15).clamp(0.0, 1.0),
-                            shimmerPos.clamp(0.0, 1.0),
-                            (shimmerPos + 0.15).clamp(0.0, 1.0),
-                            (shimmerPos + 0.35).clamp(0.0, 1.0),
-                          ],
-                        ).createShader(bounds);
-                      },
-                      child: const Icon(
-                        Icons.movie_creation_rounded,
-                        color: Colors.white,
-                        size: 110,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: Image.asset(
+                        'assets/logo/logo.png',
+                        width: 150,
                       ),
                     ),
                   ),
@@ -105,22 +84,7 @@ class _PremiumSplashScreenState extends State<PremiumSplashScreen> with SingleTi
                     opacity: _controller.drive(CurveTween(curve: const Interval(0.6, 1.0))),
                     child: Column(
                       children: [
-                        Text(
-                          'TRACK-N-TUBE',
-                          style: GoogleFonts.stixTwoText(
-                            color: Colors.white,
-                            fontSize: 28,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 8,
-                            shadows: [
-                              Shadow(
-                                color: AppColors.primary.withOpacity(0.35),
-                                blurRadius: 20,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                        ),
+                        // Replaced text with logo image which already contains the text
                         const SizedBox(height: 10),
                         Text(
                           'LUXURY EDITION',

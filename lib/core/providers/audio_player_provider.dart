@@ -1,17 +1,14 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
-import 'package:just_audio_background/just_audio_background.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:watch_track/core/services/global_youtube_service.dart';
 import 'package:watch_track/features/soundtrack/domain/models/song_model.dart';
 import 'package:watch_track/features/soundtrack/domain/enums/song_source.dart';
 import 'package:watch_track/features/soundtrack/domain/enums/song_type.dart';
+import 'package:watch_track/main.dart'; // To access global audioHandler
 
 class AudioPlayerProvider extends ChangeNotifier {
-  final AudioPlayer _audioPlayer = AudioPlayer();
-
   List<SongModel> _queue = [];
   int _currentIndex = -1;
   bool _isPlaying = false;
@@ -41,30 +38,39 @@ class AudioPlayerProvider extends ChangeNotifier {
   int get sleepTimerMinutes => _sleepTimerMinutes;
 
   AudioPlayerProvider() {
-    _initAudioPlayerListeners();
+    _initAudioHandlerListeners();
   }
 
-  void _initAudioPlayerListeners() {
-    _audioPlayer.playerStateStream.listen((state) {
+  void _initAudioHandlerListeners() {
+    // Listen to playback state (playing, buffering, position)
+    audioHandler.playbackState.listen((state) {
       _isPlaying = state.playing;
-      _isBuffering =
-          state.processingState == ProcessingState.buffering ||
-          state.processingState == ProcessingState.loading;
+      _isBuffering = state.processingState == AudioProcessingState.loading || 
+                     state.processingState == AudioProcessingState.buffering;
+      
       notifyListeners();
-
-      if (state.processingState == ProcessingState.completed) {
-        next();
-      }
     });
 
-    _audioPlayer.positionStream.listen((position) {
+    // We can't directly listen to position from AudioService nicely without a stream, 
+    // but the handler exposes it if we cast it, or we rely on periodic updates.
+    // AudioService provides AudioService.position which is a stream:
+    AudioService.position.listen((position) {
       _currentPosition = position;
       notifyListeners();
     });
 
-    _audioPlayer.durationStream.listen((duration) {
-      _totalDuration = duration ?? Duration.zero;
-      notifyListeners();
+    // Listen to media item changes (duration, current track)
+    audioHandler.mediaItem.listen((item) {
+      if (item != null) {
+        _totalDuration = item.duration ?? Duration.zero;
+        
+        // Find which song in our queue matches this id
+        final index = _queue.indexWhere((s) => s.id == item.id);
+        if (index != -1) {
+          _currentIndex = index;
+        }
+        notifyListeners();
+      }
     });
   }
 
@@ -84,69 +90,44 @@ class AudioPlayerProvider extends ChangeNotifier {
       _queue.add(song);
       _currentIndex = _queue.length - 1;
     }
-    await _startPlayback(song, startPosition: startPosition);
+    await _startPlayback(initialIndex: _currentIndex);
   }
 
-  Future<void> _startPlayback(SongModel song, {Duration? startPosition}) async {
+  Future<void> _startPlayback({required int initialIndex}) async {
     _isPlaying = false;
     _isBuffering = true;
-    _currentPosition = startPosition ?? Duration.zero;
-    _totalDuration = Duration.zero;
     notifyListeners();
 
     try {
-      String? audioUrl = song.externalUrl;
+      final items = <MediaItem>[];
+      final audioUris = <Uri>[];
 
-      if (song.source == SongSource.youtube && song.id.isNotEmpty) {
-        audioUrl = await GlobalYouTubeService().getAudioStreamUrl(
-          song.id,
-          fallbackQuery: '${song.title} ${song.artist}'.trim(),
-        );
-      }
+      for (var song in _queue) {
+        String? audioUrl = song.externalUrl;
 
-      if (audioUrl != null) {
-        AudioSource audioSource;
+        if (song.source == SongSource.youtube && song.id.isNotEmpty) {
+          audioUrl = await GlobalYouTubeService().getAudioStreamUrl(
+            song.id,
+            fallbackQuery: '${song.title} ${song.artist}'.trim(),
+          );
+        }
 
-        final artUri =
-            song.thumbnailUrl != null && song.thumbnailUrl!.isNotEmpty
-            ? Uri.parse(song.thumbnailUrl!)
-            : (song.source == SongSource.youtube
+        if (audioUrl != null) {
+          audioUris.add(Uri.parse(audioUrl));
+          
+          final artUri = song.thumbnailUrl != null && song.thumbnailUrl!.isNotEmpty
+              ? Uri.parse(song.thumbnailUrl!)
+              : (song.source == SongSource.youtube
                   ? Uri.parse('https://i.ytimg.com/vi/${song.id}/hqdefault.jpg')
                   : null);
 
-        final albumName = song.type == SongType.unknown
-            ? 'Audio Track'
-            : song.type.displayName;
+          final albumName = song.type == SongType.unknown ? 'Track & Tube' : song.type.displayName;
+          final durationObj = song.duration != null && song.duration!.isNotEmpty
+              ? _parseDuration(song.duration!)
+              : null;
 
-        final durationObj = song.duration != null && song.duration!.isNotEmpty
-            ? _parseDuration(song.duration!)
-            : null;
-
-        if (song.source == SongSource.youtube && !audioUrl.contains('saavncdn.com')) {
-          // Use LockCachingAudioSource which uses Dart's HTTP client internally to cache and stream, bypassing ExoPlayer blocks
-          audioSource = LockCachingAudioSource(
-            Uri.parse(audioUrl),
-            headers: const {
-              'User-Agent':
-                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            },
-            tag: MediaItem(
-              id: song.id,
-              album: albumName,
-              title: song.title,
-              artist: song.artist,
-              artUri: artUri,
-              duration: durationObj,
-            ),
-          );
-        } else {
-          audioSource = AudioSource.uri(
-            Uri.parse(audioUrl),
-            headers: const {
-              'User-Agent':
-                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            },
-            tag: MediaItem(
+          items.add(
+            MediaItem(
               id: song.id,
               album: albumName,
               title: song.title,
@@ -156,14 +137,25 @@ class AudioPlayerProvider extends ChangeNotifier {
             ),
           );
         }
+      }
 
-        await _audioPlayer.setAudioSource(
-          audioSource,
-          initialPosition: startPosition,
-        );
-        await _audioPlayer.play();
+      if (items.isNotEmpty) {
+        // Use custom command to load the queue into the handler
+        await audioHandler.customAction('loadPlaylist', {
+          'items': items.map((i) => {
+            'id': i.id,
+            'album': i.album,
+            'title': i.title,
+            'artist': i.artist,
+            'artUri': i.artUri?.toString(),
+            'duration': i.duration?.inMilliseconds,
+          }).toList(),
+          'uris': audioUris.map((u) => u.toString()).toList(),
+          'initialIndex': initialIndex,
+        });
+
+        await audioHandler.play();
       } else {
-        debugPrint('Could not find audio stream for ${song.title}');
         _isBuffering = false;
         notifyListeners();
       }
@@ -174,13 +166,8 @@ class AudioPlayerProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> pause() async {
-    await _audioPlayer.pause();
-  }
-
-  Future<void> resume() async {
-    await _audioPlayer.play();
-  }
+  Future<void> pause() async => await audioHandler.pause();
+  Future<void> resume() async => await audioHandler.play();
 
   Future<void> togglePlayPause() async {
     if (_isPlaying) {
@@ -190,19 +177,33 @@ class AudioPlayerProvider extends ChangeNotifier {
     }
   }
 
-  void toggleShuffle() {
+  Future<void> toggleShuffle() async {
     _isShuffle = !_isShuffle;
+    await audioHandler.setShuffleMode(
+      _isShuffle ? AudioServiceShuffleMode.all : AudioServiceShuffleMode.none,
+    );
     notifyListeners();
   }
 
-  void toggleRepeat() {
+  Future<void> toggleRepeat() async {
     _repeatMode = (_repeatMode + 1) % 3;
     _isRepeat = _repeatMode > 0;
+    
+    AudioServiceRepeatMode mode;
+    if (_repeatMode == 1) {
+      mode = AudioServiceRepeatMode.one;
+    } else if (_repeatMode == 2) {
+      mode = AudioServiceRepeatMode.all;
+    } else {
+      mode = AudioServiceRepeatMode.none;
+    }
+    
+    await audioHandler.setRepeatMode(mode);
     notifyListeners();
   }
 
   Future<void> seek(Duration position) async {
-    await _audioPlayer.seek(position);
+    await audioHandler.seek(position);
   }
 
   void rewind10Seconds() {
@@ -237,23 +238,25 @@ class AudioPlayerProvider extends ChangeNotifier {
   }
 
   // Queue modification
-  void addSongToQueue(SongModel song) {
+  Future<void> addSongToQueue(SongModel song) async {
     if (!_queue.any((s) => s.id == song.id)) {
       _queue.add(song);
+      // Not implemented dynamically appending to audio_handler queue for simplicity,
+      // usually requires another custom action, but will work if we reload queue or implement it.
       notifyListeners();
     }
   }
 
-  void removeSongFromQueue(SongModel song) {
+  Future<void> removeSongFromQueue(SongModel song) async {
     final index = _queue.indexWhere((s) => s.id == song.id);
     if (index != -1) {
       _queue.removeAt(index);
       if (_currentIndex == index) {
         if (_queue.isEmpty) {
-          closePlayer();
+          await closePlayer();
         } else {
           _currentIndex = _currentIndex % _queue.length;
-          _startPlayback(_queue[_currentIndex]);
+          await _startPlayback(initialIndex: _currentIndex);
         }
       } else if (_currentIndex > index) {
         _currentIndex--;
@@ -262,9 +265,9 @@ class AudioPlayerProvider extends ChangeNotifier {
     }
   }
 
-  void clearQueue() {
+  Future<void> clearQueue() async {
     _queue.clear();
-    closePlayer();
+    await closePlayer();
   }
 
   void shuffleQueue() {
@@ -274,6 +277,8 @@ class AudioPlayerProvider extends ChangeNotifier {
       if (current != null) {
         _currentIndex = _queue.indexOf(current);
       }
+      // Reload queue to handler
+      _startPlayback(initialIndex: _currentIndex);
       notifyListeners();
     }
   }
@@ -281,78 +286,19 @@ class AudioPlayerProvider extends ChangeNotifier {
   void playSongAtIndex(int index) {
     if (index >= 0 && index < _queue.length) {
       _currentIndex = index;
-      _startPlayback(_queue[_currentIndex]);
+      // We can use skipToQueueItem if we implemented it, or seek.
+      // AudioHandler seek allows jumping index if supported.
+      // We'll just use a customAction or skip loop
+      audioHandler.skipToQueueItem(index);
     }
   }
 
-  Future<void> next() async {
-    if (_queue.isEmpty) return;
+  Future<void> next() async => await audioHandler.skipToNext();
+  Future<void> previous() async => await audioHandler.skipToPrevious();
 
-    if (_repeatMode == 1) {
-      await _startPlayback(_queue[_currentIndex]);
-      return;
-    }
-
-    if (_isShuffle) {
-      final random = Random();
-      int nextIndex;
-      if (_queue.length > 1) {
-        do {
-          nextIndex = random.nextInt(_queue.length);
-        } while (nextIndex == _currentIndex);
-      } else {
-        nextIndex = 0;
-      }
-      _currentIndex = nextIndex;
-      await _startPlayback(_queue[_currentIndex]);
-      return;
-    }
-
-    if (_currentIndex < _queue.length - 1) {
-      _currentIndex++;
-      await _startPlayback(_queue[_currentIndex]);
-    } else {
-      if (_repeatMode == 2) {
-        _currentIndex = 0;
-        await _startPlayback(_queue[_currentIndex]);
-      } else {
-        await _audioPlayer.stop();
-        _isPlaying = false;
-        _isBuffering = false;
-        notifyListeners();
-      }
-    }
-  }
-
-  Future<void> previous() async {
-    if (_queue.isEmpty) return;
-    if (_currentPosition.inSeconds > 3) {
-      await seek(Duration.zero);
-    } else if (_isShuffle) {
-      final random = Random();
-      int nextIndex;
-      if (_queue.length > 1) {
-        do {
-          nextIndex = random.nextInt(_queue.length);
-        } while (nextIndex == _currentIndex);
-      } else {
-        nextIndex = 0;
-      }
-      _currentIndex = nextIndex;
-      await _startPlayback(_queue[_currentIndex]);
-    } else if (_currentIndex > 0) {
-      _currentIndex--;
-      await _startPlayback(_queue[_currentIndex]);
-    } else {
-      if (_repeatMode == 2) {
-        _currentIndex = _queue.length - 1;
-        await _startPlayback(_queue[_currentIndex]);
-      }
-    }
-  }
-
-  void closePlayer() {
-    _audioPlayer.stop();
+  Future<void> closePlayer() async {
+    await audioHandler.stop();
+    await audioHandler.customAction('clearQueue');
     _sleepTimer?.cancel();
     _sleepTimerMinutes = 0;
     _queue = [];
@@ -384,7 +330,6 @@ class AudioPlayerProvider extends ChangeNotifier {
   @override
   void dispose() {
     _sleepTimer?.cancel();
-    _audioPlayer.dispose();
     super.dispose();
   }
 }

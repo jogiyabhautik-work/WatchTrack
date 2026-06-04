@@ -12,7 +12,7 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
-/// SETUP SCRIPT for WatchTrack Appwrite Database
+/// SETUP SCRIPT for Track & Tube Appwrite Database
 /// 
 /// TO RUN:
 /// 1. Replace YOUR_API_KEY below with the one from Appwrite Console.
@@ -59,8 +59,8 @@ void main() async {
   try {
     // 1. Create Database
     try {
-      await databases.create(databaseId: dbId, name: 'WatchTrack');
-      print('✅ Database "WatchTrack" created.');
+      await databases.create(databaseId: dbId, name: 'Track & Tube');
+      print('✅ Database "Track & Tube" created.');
     } catch (e) {
       print('ℹ️ Database already exists or error: $e');
     }
