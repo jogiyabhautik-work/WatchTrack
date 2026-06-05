@@ -182,6 +182,7 @@ class _FavoritePickerScreenState extends State<FavoritePickerScreen> {
             await tracking.toggleFavorite(movie);
           }
         }
+        if (!context.mounted) return;
         Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ActorPickerScreen()));
       },
       onSkip: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ActorPickerScreen())),

@@ -134,11 +134,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   _passwordController.text,
                                   _nameController.text.trim(),
                                 );
-                                if (success && mounted) {
+                                if (!context.mounted) return;
+                                if (success) {
                                   Navigator.of(context).pushReplacement(
                                     MaterialPageRoute(builder: (context) => const GenrePickerScreen()),
                                   );
-                                } else if (auth.error != null && mounted) {
+                                } else if (auth.error != null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(auth.error!),

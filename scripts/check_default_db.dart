@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print
 import 'dart:io';
 import 'package:dart_appwrite/dart_appwrite.dart';
 

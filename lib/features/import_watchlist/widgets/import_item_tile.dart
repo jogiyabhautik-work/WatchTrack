@@ -82,9 +82,7 @@ class ImportItemTile extends StatelessWidget {
       }).toList(),
       onChanged: (Movie? newValue) {
         if (newValue != null) {
-          result.matchedMovie = newValue;
-          // Force UI update
-          context.read<WatchlistImportProvider>().notifyListeners();
+          context.read<WatchlistImportProvider>().updateMatch(result, newValue);
         }
       },
     );

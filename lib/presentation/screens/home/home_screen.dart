@@ -35,8 +35,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ApiService _apiService = ApiService();
   final bool _isLoading = false;
-  final bool _isRefreshing = false;
-  String? _error;
   bool _isNavigating = false;
   String _selectedGenre = 'Action';
 
@@ -304,24 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildErrorView() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, color: AppColors.primary, size: 48),
-          const SizedBox(height: 16),
-          Text(_error!, style: GoogleFonts.dmSans(color: Colors.white)),
-          const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () => _loadData(),
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
-            child: const Text('Retry'),
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildCategorySection() {
     return Column(
@@ -760,45 +741,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildDiscoveryCard(String title, String subtitle, IconData icon, Color color, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 170,
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.borderDefault, width: 0.5),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.dmSans(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.dmSans(color: AppColors.textMuted, fontSize: 10),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+
 
   void _showMoodPicker() {
     showModalBottomSheet(

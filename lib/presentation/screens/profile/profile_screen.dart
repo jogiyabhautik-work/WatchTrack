@@ -24,17 +24,16 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _handleRefresh() async {
-    await context.read<TrackingProvider>().refresh();
-    await context.read<UserDataProvider>().syncFromAppwrite();
+    final tracking = context.read<TrackingProvider>();
+    final userData = context.read<UserDataProvider>();
+    await tracking.refresh();
+    await userData.syncFromAppwrite();
   }
 
   @override
   Widget build(BuildContext context) {
     final bg = Theme.of(context).scaffoldBackgroundColor;
     final surface = Theme.of(context).colorScheme.surface;
-    final text = Theme.of(context).colorScheme.onSurface;
-    final textMuted = text.withValues(alpha: 0.6);
-    final border = Theme.of(context).brightness == Brightness.dark ? AppColors.borderDefault : Colors.grey.shade300;
 
     return Scaffold(
       backgroundColor: bg,

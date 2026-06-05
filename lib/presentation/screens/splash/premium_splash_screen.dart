@@ -12,7 +12,7 @@ class PremiumSplashScreen extends StatefulWidget {
 class _PremiumSplashScreenState extends State<PremiumSplashScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
-  late Animation<double> _shimmerAnimation;
+  
 
   @override
   void initState() {
@@ -29,12 +29,6 @@ class _PremiumSplashScreenState extends State<PremiumSplashScreen> with SingleTi
       ),
     );
 
-    _shimmerAnimation = Tween<double>(begin: -2.0, end: 2.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.4, 1.0, curve: Curves.easeInOut),
-      ),
-    );
 
     _controller.forward();
   }

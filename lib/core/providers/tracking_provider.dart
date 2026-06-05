@@ -28,16 +28,17 @@ class TrackingProvider extends ChangeNotifier {
   }
 
   void setUserId(String? userId) {
-    if (_currentUserId != userId) {
-      _currentUserId = userId;
-      if (userId != null) {
-        syncFromAppwrite().then((_) {
-           syncPendingItems();
-           migrateFromLegacy();
-        });
-      } else {
-        clearData();
-      }
+    final bool userChanged = _currentUserId != userId;
+    _currentUserId = userId;
+    if (userId != null) {
+      // Always sync from cloud on login (covers same-account cross-device login).
+      // Only migrate legacy data once per user change to avoid redundant writes.
+      syncFromAppwrite().then((_) {
+        syncPendingItems();
+        if (userChanged) migrateFromLegacy();
+      });
+    } else {
+      clearData();
     }
   }
 

@@ -187,8 +187,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                   _emailController.text.trim(),
                                   _passwordController.text,
                                 );
-                                  if (!success && auth.error != null && mounted) {
-                                    final isCooldown = auth.error!.contains('Cooldown');
+                                if (!context.mounted) return;
+                                if (!success && auth.error != null) {
+                                  final isCooldown = auth.error!.contains('Cooldown');
                                     if (isCooldown) _startCooldownTimer();
                                     ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(

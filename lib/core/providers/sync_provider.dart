@@ -174,13 +174,8 @@ class SyncProvider extends ChangeNotifier {
         ? AppwriteConstants.foldersCollectionId
         : AppwriteConstants.trackingCollectionId;
 
-    final String idField = (action.actionType == SyncActionType.updateFolder ||
-            action.actionType == SyncActionType.deleteFolder)
-        ? AppwriteConstants.attrFolderName // Actually folders use a custom id, but we'll use name for matching if needed
-        : AppwriteConstants.attrTmdbId;
-
     final data = Map<String, dynamic>.from(action.payload);
-    final String? folderId = data.remove('id'); // Remove routing ID
+    data.remove('id'); // Remove routing ID
 
     try {
       // 1. Handle Deletions

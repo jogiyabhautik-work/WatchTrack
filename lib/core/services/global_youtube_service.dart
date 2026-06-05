@@ -260,7 +260,6 @@ class GlobalYouTubeService {
         if (durationVal == null) continue;
 
         final t = video.title.toLowerCase();
-        final ch = video.author.toLowerCase();
 
         // STRICT FILTERS
         // Reject reviews, reactions, fan made, mashups, behind the scenes, compilations

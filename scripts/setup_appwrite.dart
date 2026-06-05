@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_print, deprecated_member_use
 import 'dart:io';
 import 'package:dart_appwrite/dart_appwrite.dart';
 import 'package:dart_appwrite/enums.dart';
@@ -151,7 +152,7 @@ Future<void> _createTrackingCollection(Databases databases) async {
       databaseId: dbId,
       collectionId: trackingCollId,
       key: 'userId_index',
-      type: IndexType.key,
+      type: 'key',
       attributes: <String>['userId'],
     );
     print('✅ Tracking userId index created.');
@@ -194,7 +195,7 @@ Future<void> _createFoldersCollection(Databases databases) async {
   await addAttr(databases, dbId, foldersCollId, 'createdAt', () => databases.createDatetimeAttribute(databaseId: dbId, collectionId: foldersCollId, key: 'createdAt', xrequired: true));
 
   try {
-    await databases.createIndex(databaseId: dbId, collectionId: foldersCollId, key: 'userId_index', type: IndexType.key, attributes: <String>['userId']);
+    await databases.createIndex(databaseId: dbId, collectionId: foldersCollId, key: 'userId_index', type: 'key', attributes: <String>['userId']);
     print('✅ Folders userId index created.');
   } catch(_) {}
 }
@@ -261,7 +262,7 @@ Future<void> _createFavoritesCollection(Databases databases) async {
   await addAttr(databases, dbId, favoritesCollId, 'addedAt', () => databases.createDatetimeAttribute(databaseId: dbId, collectionId: favoritesCollId, key: 'addedAt', xrequired: true));
 
   try {
-    await databases.createIndex(databaseId: dbId, collectionId: favoritesCollId, key: 'userId_index', type: IndexType.key, attributes: <String>['userId']);
+    await databases.createIndex(databaseId: dbId, collectionId: favoritesCollId, key: 'userId_index', type: 'key', attributes: <String>['userId']);
     print('✅ Favorites userId index created.');
   } catch(_) {}
 }

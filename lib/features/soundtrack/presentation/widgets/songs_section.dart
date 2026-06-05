@@ -252,7 +252,6 @@ class _SongsSectionState extends State<SongsSection> {
 
   Widget _buildSongCard(SongModel song) {
     final audioProvider = context.watch<AudioPlayerProvider>();
-    final isPlaying = audioProvider.currentSong?.id == song.id && audioProvider.isPlaying;
     final isSelected = audioProvider.currentSong?.id == song.id;
     Color typeColor = _getTypeColor(song.type);
     

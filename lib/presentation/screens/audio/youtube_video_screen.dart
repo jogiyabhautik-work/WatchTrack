@@ -172,14 +172,13 @@ class _YouTubeVideoScreenState extends State<YouTubeVideoScreen> {
 
     return Scaffold(
       backgroundColor: Colors.black,
-      body: WillPopScope(
-        onWillPop: () async {
-          // If in landscape, exit landscape first
+      body: PopScope(
+        canPop: !_isLandscape,
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) return;
           if (_isLandscape) {
             _toggleFullscreen();
-            return false;
           }
-          return true;
         },
         child: GestureDetector(
           onTap: _toggleControls,

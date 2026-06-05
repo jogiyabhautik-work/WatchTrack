@@ -349,7 +349,6 @@ class _SquigglyProgressPainter extends CustomPainter {
     progressPath.moveTo(0, size.height / 2);
 
     if (isPlaying && playedWidth > 0) {
-      final waveCount = (playedWidth / 20).floor();
       final amplitude = 4.0;
       
       for (double i = 0; i <= playedWidth; i++) {

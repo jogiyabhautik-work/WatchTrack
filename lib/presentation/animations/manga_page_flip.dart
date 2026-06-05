@@ -132,15 +132,17 @@ class _MangaFlipViewState extends State<MangaFlipView> {
         double scale = 1.0 - (difference.abs() * 0.1);
         double opacity = 1.0 - (difference.abs() * 0.3).clamp(0.0, 1.0);
 
-        return Transform(
-          transform: Matrix4.identity()
-            ..setEntry(3, 2, 0.001)
-            ..rotateY(rotation)
-            ..scale(scale),
-          alignment: Alignment.center,
-          child: Opacity(
-            opacity: opacity,
-            child: widget.pages[index],
+        return Transform.scale(
+          scale: scale,
+          child: Transform(
+            transform: Matrix4.identity()
+              ..setEntry(3, 2, 0.001)
+              ..rotateY(rotation),
+            alignment: Alignment.center,
+            child: Opacity(
+              opacity: opacity,
+              child: widget.pages[index],
+            ),
           ),
         );
       },

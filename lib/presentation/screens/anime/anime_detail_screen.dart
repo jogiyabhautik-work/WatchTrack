@@ -28,7 +28,6 @@ class _AnimeDetailScreenState extends State<AnimeDetailScreen> {
   final ApiService _apiService = ApiService();
   Movie? _fullAnime;
   List<Movie> _similarAnime = [];
-  bool _isLoading = true;
   bool _isLoadingSimilar = true;
   int _selectedTab = 0; // 0 = Details, 1 = Reviews, 2 = Soundtrack
   List<Review> _reviews = [];
@@ -59,7 +58,6 @@ class _AnimeDetailScreenState extends State<AnimeDetailScreen> {
     if (mounted) {
       setState(() {
         _fullAnime = details;
-        _isLoading = false;
       });
     }
   }

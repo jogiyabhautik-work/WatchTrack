@@ -7,7 +7,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:palette_generator/palette_generator.dart';
 import 'package:watch_track/presentation/widgets/movie_card.dart';
 import 'package:watch_track/core/constants/app_colors.dart';
 import 'package:watch_track/data/models/movie_model.dart';
@@ -37,7 +36,6 @@ class _DetailScreenState extends State<DetailScreen> {
   List<Movie> _similarMovies = [];
   bool _isLoadingDetails = true;
   bool _isLoadingSimilar = true;
-  String? _detailsError;
   bool _isNavigating = false;
 
   bool _isTrailerMode = false;
@@ -52,15 +50,11 @@ class _DetailScreenState extends State<DetailScreen> {
 
   // Adaptive Theming
   Color _accentColor = AppColors.primary;
-  PaletteGenerator? _palette;
 
   // Tabs
   int _selectedTab = 0; // 0 = Details, 1 = Reviews
   List<Review> _reviews = [];
   bool _isLoadingReviews = false;
-
-  // Cache for seasons to prevent re-fetching
-  final Map<int, List<Episode>> _seasonCache = {};
 
   @override
   void initState() {
@@ -91,7 +85,6 @@ class _DetailScreenState extends State<DetailScreen> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _detailsError = "Failed to load extended info";
           _isLoadingDetails = false;
         });
       }
@@ -146,7 +139,6 @@ class _DetailScreenState extends State<DetailScreen> {
     final palette = await AdaptiveThemeHelper.getPalette(imageUrl);
     if (palette != null && mounted) {
       setState(() {
-        _palette = palette;
         _accentColor = palette.vibrantColor?.color ?? 
                        palette.dominantColor?.color ?? 
                        AppColors.primary;
@@ -198,9 +190,7 @@ class _DetailScreenState extends State<DetailScreen> {
             color: _accentColor,
             child: CustomScrollView(
               key: PageStorageKey('detail_${widget.movie.id}'),
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
-              ),
+              physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
                 _buildSliverHeader(movie),
                 SliverToBoxAdapter(
@@ -447,36 +437,7 @@ class _DetailScreenState extends State<DetailScreen> {
             ],
           ),
         ),
-        const SizedBox(width: 8),
-        _buildScoreBadge('IMDb', '8.4', Colors.yellow[700]!),
-        const SizedBox(width: 8),
-        _buildScoreBadge('RT', '92%', Colors.red),
       ],
-    );
-  }
-
-  Widget _buildScoreBadge(String label, String score, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withValues(alpha: 0.5), width: 0.5),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(label,
-              style: GoogleFonts.dmSans(
-                  color: color, fontSize: 9, fontWeight: FontWeight.bold)),
-          const SizedBox(width: 4),
-          Text(score,
-              style: GoogleFonts.dmSans(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold)),
-        ],
-      ),
     );
   }
 
@@ -1049,22 +1010,7 @@ class _DetailScreenState extends State<DetailScreen> {
     return _buildHorizontalShimmer(80);
   }
 
-  Widget _buildEpisodeSkeleton() {
-    return Shimmer.fromColors(
-      baseColor: AppColors.surface,
-      highlightColor: AppColors.surface2,
-      child: Column(
-          children: List.generate(
-        2,
-        (index) => Container(
-            height: 100,
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12))),
-      )),
-    );
-  }
+
 
   Widget _buildSmallSyncIndicator(SyncStatus status) {
     if (status == SyncStatus.synced) return const SizedBox.shrink();

@@ -83,13 +83,12 @@ class WatchlistFolderProvider extends ChangeNotifier {
   }
 
   void setUserId(String? userId) {
-    if (_currentUserId != userId) {
-      _currentUserId = userId;
-      if (userId != null) {
-        syncFromAppwrite();
-      } else {
-        clearData();
-      }
+    _currentUserId = userId;
+    if (userId != null) {
+      // Always re-sync folders from cloud on login for cross-device support.
+      syncFromAppwrite();
+    } else {
+      clearData();
     }
   }
 

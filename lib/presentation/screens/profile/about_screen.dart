@@ -16,7 +16,7 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Professional theme handling for this screen
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     final bg = Theme.of(context).scaffoldBackgroundColor;
     final surface = Theme.of(context).colorScheme.surface;
     final text = Theme.of(context).colorScheme.onSurface;

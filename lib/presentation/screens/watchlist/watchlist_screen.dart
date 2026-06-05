@@ -167,8 +167,10 @@ class _WatchlistScreenState extends State<WatchlistScreen>
 
 
   Future<void> _handleRefresh() async {
-    await context.read<TrackingProvider>().refresh();
-    await context.read<WatchlistFolderProvider>().syncFromAppwrite();
+    final tracking = context.read<TrackingProvider>();
+    final folder = context.read<WatchlistFolderProvider>();
+    await tracking.refresh();
+    await folder.syncFromAppwrite();
   }
 
   // ─── UI Builders ───────────────────────────────────────────────────────────
@@ -360,8 +362,9 @@ class _WatchlistScreenState extends State<WatchlistScreen>
         _selectedIds.clear();
         _isSelectionMode = false;
       });
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Moved ${_selectedIds.length} items to ${folder.name}')),
+        SnackBar(content: Text('Moved items to ${folder.name}')),
       );
     }
   }
@@ -911,13 +914,6 @@ class _WatchlistScreenState extends State<WatchlistScreen>
     };
   }
 
-  String _getTypeLabel(_MediaTypeFilter f) {
-    return switch (f) {
-      _MediaTypeFilter.all => 'All Media',
-      _MediaTypeFilter.movies => 'Movies',
-      _MediaTypeFilter.series => 'Series',
-    };
-  }
 
   // ── Sort Bar ────────────────────────────────────────────────────────────────
 
@@ -2577,30 +2573,4 @@ class _MovieGridCard extends StatelessWidget {
     );
   }
 
-  void _showOptions(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.delete_outline, color: Colors.redAccent),
-              title: const Text('Remove from Library', style: TextStyle(color: Colors.redAccent)),
-              onTap: () {
-                Navigator.pop(context);
-                onRemove();
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

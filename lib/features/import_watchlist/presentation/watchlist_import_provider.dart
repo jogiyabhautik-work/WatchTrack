@@ -4,6 +4,7 @@ import 'package:watch_track/features/import_watchlist/services/file_import_servi
 import 'package:watch_track/core/providers/tracking_provider.dart';
 import 'package:watch_track/core/providers/watchlist_folder_provider.dart';
 import 'package:watch_track/data/models/user_title_model.dart';
+import 'package:watch_track/data/models/movie_model.dart';
 import 'package:watch_track/features/import_watchlist/domain/smart_import_parser.dart';
 
 enum ImportState { idle, readingFile, searchingTMDB, reviewing, done, error }
@@ -114,6 +115,11 @@ class WatchlistImportProvider extends ChangeNotifier {
 
   void toggleSelection(MatchResult result) {
     result.isSelected = !result.isSelected;
+    notifyListeners();
+  }
+
+  void updateMatch(MatchResult result, Movie newValue) {
+    result.matchedMovie = newValue;
     notifyListeners();
   }
 

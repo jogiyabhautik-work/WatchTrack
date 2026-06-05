@@ -152,6 +152,7 @@ class _FreeStreamsSectionState extends State<FreeStreamsSection> {
     
     setState(() => _downloadProgress[stream.id] = 0.0);
     
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('Starting download for ${selectedQuality.quality}...'),
     ));
@@ -278,6 +279,7 @@ class _FreeStreamsSectionState extends State<FreeStreamsSection> {
                     final safeTitle = stream.title.replaceAll(RegExp(r'[^\\w\\s]+'), '').trim().replaceAll(' ', '_');
                     final appDir = Directory('${(await getApplicationDocumentsDirectory()).path}/TrackAndTube');
                     final filePath = '${appDir.path}/$safeTitle.mp4';
+                    if (!context.mounted) return;
                     Navigator.push(context, MaterialPageRoute(builder: (_) => DownloadDetailScreen(filePath: filePath, title: stream.title)));
                   },
                 )
