@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:watch_track/features/soundtrack/domain/enums/song_type.dart';
-import 'package:watch_track/features/soundtrack/domain/enums/song_source.dart';
 import 'package:provider/provider.dart';
 import 'package:watch_track/core/providers/audio_player_provider.dart';
 import 'package:watch_track/core/providers/user_data_provider.dart';
@@ -140,7 +139,7 @@ class _SongsSectionState extends State<SongsSection> {
           const SizedBox(height: 12),
         ],
 
-        ..._songs.map((song) => _buildSongCard(song)).toList(),
+        ..._songs.map((song) => _buildSongCard(song)),
       ],
     );
   }
@@ -149,9 +148,9 @@ class _SongsSectionState extends State<SongsSection> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.orange.withOpacity(0.08),
+        color: Colors.orange.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.orange.withOpacity(0.3), width: 0.5),
+        border: Border.all(color: Colors.orange.withValues(alpha: 0.3), width: 0.5),
       ),
       child: Row(
         children: [
@@ -178,7 +177,7 @@ class _SongsSectionState extends State<SongsSection> {
         padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 16),
         child: Column(
           children: [
-            Icon(icon, size: 48, color: Colors.white.withOpacity(0.1)),
+            Icon(icon, size: 48, color: Colors.white.withValues(alpha: 0.1)),
             const SizedBox(height: 12),
             Text(
               message,
@@ -265,10 +264,10 @@ class _SongsSectionState extends State<SongsSection> {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.primary.withOpacity(0.08) : AppColors.surface,
+        color: isSelected ? AppColors.primary.withValues(alpha: 0.08) : AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isSelected ? AppColors.primary.withOpacity(0.3) : AppColors.borderDefault, 
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.3) : AppColors.borderDefault, 
           width: isSelected ? 1.5 : 0.5,
         ),
       ),
@@ -290,7 +289,7 @@ class _SongsSectionState extends State<SongsSection> {
                         width: 56,
                         height: 56,
                         decoration: BoxDecoration(
-                          color: typeColor.withOpacity(0.1),
+                          color: typeColor.withValues(alpha: 0.1),
                         ),
                         child: Image.asset(
                           'assets/logo/default_soundtrack.png',
@@ -369,7 +368,7 @@ class _SongsSectionState extends State<SongsSection> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.04),
+                      color: Colors.white.withValues(alpha: 0.04),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
@@ -511,9 +510,9 @@ class _SongsSectionState extends State<SongsSection> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.3), width: 0.5),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 0.5),
       ),
       child: Text(
         label.toUpperCase(),

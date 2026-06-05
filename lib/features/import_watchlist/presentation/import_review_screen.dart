@@ -8,7 +8,7 @@ import 'package:watch_track/features/import_watchlist/widgets/import_item_tile.d
 import 'package:watch_track/core/providers/watchlist_folder_provider.dart';
 
 class ImportReviewScreen extends StatefulWidget {
-  const ImportReviewScreen({Key? key}) : super(key: key);
+  const ImportReviewScreen({super.key});
 
   @override
   State<ImportReviewScreen> createState() => _ImportReviewScreenState();

@@ -193,7 +193,7 @@ class _GlobalTrailerPlayerState extends State<GlobalTrailerPlayer> {
             return Container(
               margin: const EdgeInsets.only(bottom: 10),
               decoration: BoxDecoration(
-                color: isPlaying ? AppColors.primary.withOpacity(0.08) : AppColors.surface,
+                color: isPlaying ? AppColors.primary.withValues(alpha: 0.08) : AppColors.surface,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: isPlaying ? AppColors.primary : AppColors.borderDefault,
@@ -222,7 +222,7 @@ class _GlobalTrailerPlayerState extends State<GlobalTrailerPlayer> {
                       Container(
                         width: 90,
                         height: 56,
-                        color: Colors.black.withOpacity(0.3),
+                        color: Colors.black.withValues(alpha: 0.3),
                       ),
                       const Icon(Icons.play_circle_outline_rounded, color: Colors.white, size: 24),
                     ],

@@ -8,7 +8,7 @@ import 'package:watch_track/core/services/download_progress_notifier.dart';
 
 class DownloadDetailScreen extends StatefulWidget {
   final File file;
-  const DownloadDetailScreen({Key? key, required this.file}) : super(key: key);
+  const DownloadDetailScreen({super.key, required this.file});
 
   @override
   State<DownloadDetailScreen> createState() => _DownloadDetailScreenState();

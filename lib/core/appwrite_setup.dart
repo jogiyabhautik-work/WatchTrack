@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:dart_appwrite/dart_appwrite.dart';
-import 'package:dart_appwrite/models.dart' as models;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:watch_track/core/appwrite_constants.dart';
 

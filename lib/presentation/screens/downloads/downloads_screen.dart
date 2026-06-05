@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:watch_track/core/constants/app_colors.dart';
 import 'package:watch_track/presentation/screens/video/custom_stream_player.dart';
-import 'package:watch_track/core/services/download_progress_notifier.dart';
 
 class DownloadsScreen extends StatefulWidget {
   const DownloadsScreen({super.key});
@@ -107,7 +106,7 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         leading: Container(
                           padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.1), shape: BoxShape.circle),
+                          decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
                           child: const Icon(Icons.movie_rounded, color: AppColors.primary),
                         ),
                         title: Text(fileName, style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold)),

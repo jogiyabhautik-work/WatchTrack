@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:youtube_explode_dart/youtube_explode_dart.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:watch_track/core/cache_manager.dart';
 import 'package:watch_track/features/soundtrack/domain/models/song_model.dart';
 import 'package:watch_track/features/soundtrack/domain/enums/song_type.dart';
 import 'package:watch_track/features/soundtrack/domain/enums/song_source.dart';
@@ -53,8 +52,9 @@ class GlobalYouTubeService {
     if (title.contains('hindi')) return 'Hindi';
     if (title.contains('tamil')) return 'Tamil';
     if (title.contains('telugu')) return 'Telugu';
-    if (title.contains('japanese') || title.contains('sub') || isoCode == 'ja')
+    if (title.contains('japanese') || title.contains('sub') || isoCode == 'ja') {
       return 'Japanese';
+    }
     if (title.contains('korean') || isoCode == 'ko') return 'Korean';
     if (title.contains('dubbed') || title.contains('dub')) return 'Dubbed';
 
@@ -123,11 +123,13 @@ class GlobalYouTubeService {
     videos.sort((a, b) {
       if (languagePreference != null) {
         if (a.language.toLowerCase() == languagePreference.toLowerCase() &&
-            b.language.toLowerCase() != languagePreference.toLowerCase())
+            b.language.toLowerCase() != languagePreference.toLowerCase()) {
           return -1;
+        }
         if (b.language.toLowerCase() == languagePreference.toLowerCase() &&
-            a.language.toLowerCase() != languagePreference.toLowerCase())
+            a.language.toLowerCase() != languagePreference.toLowerCase()) {
           return 1;
+        }
       }
       if (a.isOfficial && !b.isOfficial) return -1;
       if (b.isOfficial && !a.isOfficial) return 1;
@@ -380,9 +382,9 @@ class GlobalYouTubeService {
         bool isLikelyAccurate = score >= 1.0;
         String reason = reasons.isEmpty
             ? 'General search result.'
-            : reasons.join(', ') + '.';
+            : '${reasons.join(', ')}.';
         if (!isLikelyAccurate) {
-          reason = 'Low confidence match. ' + reason;
+          reason = 'Low confidence match. $reason';
         }
 
         songs.add(
@@ -613,8 +615,9 @@ class GlobalYouTubeService {
 
       List<SongModel> songs = [];
       for (var video in searchResults) {
-        if (video.duration == null || video.duration!.inMinutes > 20)
+        if (video.duration == null || video.duration!.inMinutes > 20) {
           continue; // Skip very long videos
+        }
 
         songs.add(
           SongModel.create(

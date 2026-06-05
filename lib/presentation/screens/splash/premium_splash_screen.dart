@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:watch_track/core/constants/app_colors.dart';
@@ -95,7 +94,7 @@ class _PremiumSplashScreenState extends State<PremiumSplashScreen> with SingleTi
                             letterSpacing: 6,
                             shadows: [
                               Shadow(
-                                color: Colors.black.withOpacity(0.55),
+                                color: Colors.black.withValues(alpha: 0.55),
                                 blurRadius: 6,
                                 offset: const Offset(0, 2),
                               ),

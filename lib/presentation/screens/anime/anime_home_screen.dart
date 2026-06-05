@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +10,6 @@ import 'package:watch_track/core/providers/user_data_provider.dart';
 import 'package:watch_track/core/providers/tracking_provider.dart';
 import 'package:watch_track/presentation/screens/anime/anime_detail_screen.dart';
 import 'package:watch_track/presentation/screens/search/search_screen.dart';
-import 'package:watch_track/presentation/widgets/movie_card.dart';
 import 'package:watch_track/presentation/screens/home/see_all_screen.dart';
 
 class AnimeColors {
@@ -398,7 +396,7 @@ class AnimeMovieCard extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       stops: const [0.5, 1.0],
-                      colors: [Colors.transparent, Colors.black.withOpacity(0.85)],
+                      colors: [Colors.transparent, Colors.black.withValues(alpha: 0.85)],
                     ),
                   ),
                 ),

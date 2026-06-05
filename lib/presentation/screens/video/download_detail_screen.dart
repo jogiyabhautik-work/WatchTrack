@@ -127,9 +127,9 @@ class DownloadDetailScreen extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.all(24),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
+                          color: Colors.white.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(24),
-                          border: Border.all(color: Colors.white.withOpacity(0.1), width: 1),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 1),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,7 +193,7 @@ class DownloadDetailScreen extends StatelessWidget {
                               gradient: const LinearGradient(colors: [AppColors.primary, Color(0xFF8B5CF6)]),
                               borderRadius: BorderRadius.circular(16),
                               boxShadow: [
-                                BoxShadow(color: AppColors.primary.withOpacity(0.3), blurRadius: 12, offset: const Offset(0, 4)),
+                                BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4)),
                               ],
                             ),
                             child: Row(
@@ -215,8 +215,8 @@ class DownloadDetailScreen extends StatelessWidget {
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             decoration: BoxDecoration(
-                              color: Colors.redAccent.withOpacity(0.1),
-                              border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+                              color: Colors.redAccent.withValues(alpha: 0.1),
+                              border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent),

@@ -33,7 +33,7 @@ class _FreeStreamsSectionState extends State<FreeStreamsSection> {
   bool _isLoading = true;
   bool _hasError = false;
   
-  Map<String, double> _downloadProgress = {};
+  final Map<String, double> _downloadProgress = {};
   Set<String> _downloadedTitles = {};
 
   @override
@@ -127,7 +127,7 @@ class _FreeStreamsSectionState extends State<FreeStreamsSection> {
                   title: Text('Save to Photo Gallery', style: GoogleFonts.dmSans(color: Colors.white)),
                   subtitle: Text('If disabled, saves to in-app library', style: GoogleFonts.dmSans(color: AppColors.textMuted, fontSize: 12)),
                   value: saveToGallery,
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                   onChanged: (val) => setModalState(() => saveToGallery = val),
                 ),
                 const Divider(color: Colors.white24),
@@ -135,7 +135,7 @@ class _FreeStreamsSectionState extends State<FreeStreamsSection> {
                   title: Text('Download ${q.quality}', style: GoogleFonts.dmSans(color: Colors.white)),
                   trailing: const Icon(Icons.download_rounded, color: Colors.white70),
                   onTap: () => Navigator.pop(context, {'quality': q, 'gallery': saveToGallery}),
-                )).toList(),
+                )),
                 const SizedBox(height: 16),
               ],
             );
@@ -250,7 +250,7 @@ class _FreeStreamsSectionState extends State<FreeStreamsSection> {
                 width: 60,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1), 
+                  color: AppColors.primary.withValues(alpha: 0.1), 
                   borderRadius: BorderRadius.circular(8),
                   image: stream.thumbnailUrl != null ? DecorationImage(
                     image: CachedNetworkImageProvider(stream.thumbnailUrl!),
@@ -296,7 +296,7 @@ class _FreeStreamsSectionState extends State<FreeStreamsSection> {
             ),
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }

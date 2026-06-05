@@ -4,11 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:provider/provider.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-import 'package:watch_track/core/utils/adaptive_theme_helper.dart';
 import 'package:watch_track/presentation/widgets/free_streams_section.dart';
 import 'package:watch_track/data/models/movie_model.dart';
 import 'package:watch_track/back-end/api_service.dart';
@@ -16,7 +13,6 @@ import 'package:watch_track/core/providers/tracking_provider.dart';
 import 'package:watch_track/presentation/widgets/watchlist_action_sheet.dart';
 import 'package:watch_track/presentation/screens/anime/anime_home_screen.dart'; // For AnimeColors and AnimeMovieCard
 import 'package:watch_track/presentation/screens/anime/anime_actor_detail_screen.dart';
-import 'package:watch_track/data/models/user_title_model.dart';
 import 'package:watch_track/features/soundtrack/presentation/widgets/songs_section.dart';
 import 'package:watch_track/presentation/widgets/global_trailer_player.dart';
 
@@ -189,7 +185,7 @@ class _AnimeDetailScreenState extends State<AnimeDetailScreen> {
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
             child: Container(
-              color: AnimeColors.background.withOpacity(0.8),
+              color: AnimeColors.background.withValues(alpha: 0.8),
             ),
           ),
         ],
@@ -243,7 +239,7 @@ class _AnimeDetailScreenState extends State<AnimeDetailScreen> {
                       stops: const [0.5, 0.8, 1.0],
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(0.6),
+                        Colors.black.withValues(alpha: 0.6),
                         Colors.black,
                       ],
                     ),

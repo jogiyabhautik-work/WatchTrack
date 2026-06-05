@@ -39,7 +39,7 @@ class WatchlistActionSheet extends StatelessWidget {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -73,7 +73,7 @@ class WatchlistActionSheet extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.15),
+                color: AppColors.primary.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(Icons.bookmarks_outlined,
@@ -110,7 +110,7 @@ class WatchlistActionSheet extends StatelessWidget {
                 children: [
                   Expanded(
                       child: Divider(
-                          color: Colors.white.withOpacity(0.1), height: 1)),
+                          color: Colors.white.withValues(alpha: 0.1), height: 1)),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Text(
@@ -125,7 +125,7 @@ class WatchlistActionSheet extends StatelessWidget {
                   ),
                   Expanded(
                       child: Divider(
-                          color: Colors.white.withOpacity(0.1), height: 1)),
+                          color: Colors.white.withValues(alpha: 0.1), height: 1)),
                 ],
               ),
             ),
@@ -135,7 +135,7 @@ class WatchlistActionSheet extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.06),
+                    color: Colors.white.withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Center(
@@ -210,9 +210,9 @@ class SheetTile extends StatelessWidget {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.04),
+          color: Colors.white.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: Colors.white.withOpacity(0.07), width: 1),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.07), width: 1),
         ),
         child: Row(
           children: [

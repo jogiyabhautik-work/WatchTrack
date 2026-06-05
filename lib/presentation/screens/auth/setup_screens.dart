@@ -120,11 +120,14 @@ class _GenrePickerScreenState extends State<GenrePickerScreen> {
             selected: isSelected,
             onSelected: (val) {
               setState(() {
-                if (val) _selected.add(genre);
-                else _selected.remove(genre);
+                if (val) {
+                  _selected.add(genre);
+                } else {
+                  _selected.remove(genre);
+                }
               });
             },
-            selectedColor: AppColors.primary.withOpacity(0.2),
+            selectedColor: AppColors.primary.withValues(alpha: 0.2),
             checkmarkColor: AppColors.primary,
             labelStyle: GoogleFonts.dmSans(
               color: isSelected ? AppColors.primary : Colors.white70,
@@ -316,8 +319,11 @@ class _ActorPickerScreenState extends State<ActorPickerScreen> {
                       return GestureDetector(
                         onTap: () {
                           setState(() {
-                            if (isSelected) _selected.remove(actor.id);
-                            else _selected.add(actor.id);
+                            if (isSelected) {
+                              _selected.remove(actor.id);
+                            } else {
+                              _selected.add(actor.id);
+                            }
                           });
                         },
                         child: Column(
@@ -340,7 +346,7 @@ class _ActorPickerScreenState extends State<ActorPickerScreen> {
                                     Container(
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(12),
-                                        color: AppColors.primary.withOpacity(0.4),
+                                        color: AppColors.primary.withValues(alpha: 0.4),
                                       ),
                                       child: const Center(child: Icon(Icons.check, color: Colors.white)),
                                     ),

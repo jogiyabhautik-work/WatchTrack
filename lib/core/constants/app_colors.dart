@@ -17,8 +17,8 @@ class AppColors {
 
   // Luxury / Cinematic Design System
   static const Color goldAccent = Color(0xFFFFD700);
-  static Color glassBackground = Colors.black.withOpacity(0.7);
-  static Color glassBorder = Colors.white.withOpacity(0.1);
+  static Color glassBackground = Colors.black.withValues(alpha: 0.7);
+  static Color glassBorder = Colors.white.withValues(alpha: 0.1);
   static const List<Color> cinematicGradient = [
     Color(0xFFD81F26),
     Color(0xFF8B0000),

@@ -187,7 +187,7 @@ class Season {
       seasonNumber: json['season_number'] ?? 0,
       episodeCount: json['episode_count'] ?? 0,
       episodes: episodesJson
-          .where((e) => e is Map)
+          .whereType<Map>()
           .map((e) => Episode.fromJson(e as Map<String, dynamic>))
           .toList(),
     );

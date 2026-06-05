@@ -19,7 +19,7 @@ class CustomMediaNotification extends StatefulWidget {
   final String deviceName;
 
   const CustomMediaNotification({
-    Key? key,
+    super.key,
     required this.title,
     required this.artist,
     this.albumArtUrl,
@@ -31,7 +31,7 @@ class CustomMediaNotification extends StatefulWidget {
     required this.totalDuration,
     this.onSeek,
     this.deviceName = 'This phone',
-  }) : super(key: key);
+  });
 
   @override
   State<CustomMediaNotification> createState() => _CustomMediaNotificationState();
@@ -81,10 +81,10 @@ class _CustomMediaNotificationState extends State<CustomMediaNotification>
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
-        color: theme.scaffoldBackgroundColor.withOpacity(0.5),
+        color: theme.scaffoldBackgroundColor.withValues(alpha: 0.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -109,9 +109,9 @@ class _CustomMediaNotificationState extends State<CustomMediaNotification>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Colors.black.withOpacity(0.6),
+                      Colors.black.withValues(alpha: 0.6),
                       Colors.transparent,
-                      Colors.black.withOpacity(0.7),
+                      Colors.black.withValues(alpha: 0.7),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -125,7 +125,7 @@ class _CustomMediaNotificationState extends State<CustomMediaNotification>
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: Container(
-                  color: Colors.black.withOpacity(0.2), // Dark tint
+                  color: Colors.black.withValues(alpha: 0.2), // Dark tint
                 ),
               ),
             ),
@@ -206,7 +206,7 @@ class _CustomMediaNotificationState extends State<CustomMediaNotification>
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: Colors.white.withOpacity(0.7),
+                                color: Colors.white.withValues(alpha: 0.7),
                                 fontSize: 14,
                               ),
                             ),
@@ -227,7 +227,7 @@ class _CustomMediaNotificationState extends State<CustomMediaNotification>
                             borderRadius: BorderRadius.circular(20), // Rounded square
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.2),
+                                color: Colors.black.withValues(alpha: 0.2),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),
@@ -263,7 +263,7 @@ class _CustomMediaNotificationState extends State<CustomMediaNotification>
                         width: 24,
                         height: 24,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.8),
+                          color: Colors.white.withValues(alpha: 0.8),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Material(
@@ -322,7 +322,7 @@ class _SquigglyProgressPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final trackPaint = Paint()
-      ..color = Colors.white.withOpacity(0.3)
+      ..color = Colors.white.withValues(alpha: 0.3)
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;

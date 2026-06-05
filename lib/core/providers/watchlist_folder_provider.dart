@@ -6,7 +6,6 @@ import 'package:watch_track/core/appwrite_client.dart';
 import 'package:watch_track/core/appwrite_constants.dart';
 import 'package:watch_track/core/providers/sync_provider.dart';
 import 'package:watch_track/data/models/sync_action_model.dart';
-import 'package:watch_track/data/models/movie_model.dart';
 
 class WatchlistFolder {
   final String id;

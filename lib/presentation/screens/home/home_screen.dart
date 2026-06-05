@@ -15,13 +15,10 @@ import 'package:watch_track/presentation/screens/detail/detail_screen.dart';
 import 'package:watch_track/presentation/screens/genre/genre_screen.dart';
 import 'package:watch_track/core/providers/user_data_provider.dart';
 import 'package:watch_track/core/providers/recommendation_provider.dart';
-import 'package:watch_track/core/utils/adaptive_theme_helper.dart';
 import 'package:watch_track/core/services/global_youtube_service.dart';
-import 'package:watch_track/core/appwrite_client.dart';
 import 'package:watch_track/core/providers/tracking_provider.dart';
 import 'package:watch_track/presentation/screens/home/see_all_screen.dart';
 import 'package:watch_track/presentation/screens/profile/profile_screen.dart';
-import 'package:watch_track/presentation/screens/watchlist/watchlist_screen.dart';
 import 'package:watch_track/presentation/screens/downloads/downloads_screen.dart';
 import 'package:watch_track/presentation/widgets/watchlist_action_sheet.dart';
 import 'package:watch_track/presentation/widgets/binge_planner.dart';
@@ -37,8 +34,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final ApiService _apiService = ApiService();
-  bool _isLoading = false;
-  bool _isRefreshing = false;
+  final bool _isLoading = false;
+  final bool _isRefreshing = false;
   String? _error;
   bool _isNavigating = false;
   String _selectedGenre = 'Action';
@@ -104,7 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         center: const Alignment(-0.6, -0.8),
                         radius: 1.2,
                         colors: [
-                          AppColors.primary.withOpacity(0.12),
+                          AppColors.primary.withValues(alpha: 0.12),
                           AppColors.background,
                         ],
                       ),
@@ -370,7 +367,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                   ),
                   backgroundColor: AppColors.surface,
-                  selectedColor: AppColors.primary.withOpacity(0.15),
+                  selectedColor: AppColors.primary.withValues(alpha: 0.15),
                   checkmarkColor: AppColors.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
@@ -432,10 +429,10 @@ class _HomeScreenState extends State<HomeScreen> {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [color.withOpacity(0.2), color.withOpacity(0.05)],
+            colors: [color.withValues(alpha: 0.2), color.withValues(alpha: 0.05)],
           ),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withOpacity(0.3), width: 1),
+          border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -472,7 +469,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -520,7 +517,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               begin: Alignment.bottomCenter,
                               end: Alignment.topCenter,
                               colors: [
-                                Colors.black.withOpacity(0.8),
+                                Colors.black.withValues(alpha: 0.8),
                                 Colors.transparent,
                               ],
                             ),
@@ -585,8 +582,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                   colors: [
-                    Colors.black.withOpacity(0.9),
-                    Colors.black.withOpacity(0.4),
+                    Colors.black.withValues(alpha: 0.9),
+                    Colors.black.withValues(alpha: 0.4),
                     Colors.transparent,
                   ],
                 ),
@@ -654,7 +651,7 @@ class _HomeScreenState extends State<HomeScreen> {
           border: Border.all(color: Colors.black, width: 3),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               offset: const Offset(6, 6),
               blurRadius: 0,
             ),
@@ -688,7 +685,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text(
                     'アニメ',
                     style: GoogleFonts.stixTwoText(
-                      color: Colors.white.withOpacity(0.9),
+                      color: Colors.white.withValues(alpha: 0.9),
                       fontSize: 80,
                       fontWeight: FontWeight.w900,
                       letterSpacing: -5,
@@ -1042,7 +1039,7 @@ class MangaSpeedLinesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.black.withOpacity(0.03)
+      ..color = Colors.black.withValues(alpha: 0.03)
       ..strokeWidth = 1.5;
 
     for (int i = 0; i < 20; i++) {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:watch_track/core/constants/app_colors.dart';
 import 'package:watch_track/core/providers/auth_provider.dart';
 import 'package:watch_track/presentation/screens/auth/setup_screens.dart';
@@ -28,7 +27,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppColors.background.withOpacity(0.8),
+              AppColors.background.withValues(alpha: 0.8),
               AppColors.background,
             ],
           ),

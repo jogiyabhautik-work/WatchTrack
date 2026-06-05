@@ -7,7 +7,6 @@ import 'package:watch_track/presentation/screens/watchlist/watchlist_screen.dart
 import 'package:watch_track/presentation/screens/audio/audio_library_screen.dart';
 import 'package:watch_track/presentation/widgets/mini_audio_player.dart';
 import 'package:provider/provider.dart';
-import 'package:watch_track/core/providers/audio_player_provider.dart';
 import 'package:watch_track/core/providers/auth_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -59,7 +58,7 @@ class _MainScreenState extends State<MainScreen> {
               right: 0,
               child: SafeArea(
                 child: Container(
-                  color: Colors.redAccent.withOpacity(0.9),
+                  color: Colors.redAccent.withValues(alpha: 0.9),
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   child: const Center(
                     child: Text(
@@ -96,15 +95,15 @@ class _MainScreenState extends State<MainScreen> {
           filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.08),
+              color: Colors.white.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(30),
               border: Border.all(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 width: 1.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   blurRadius: 30,
                   offset: const Offset(0, 10),
                 ),
@@ -137,7 +136,7 @@ class _MainScreenState extends State<MainScreen> {
         curve: Curves.easeInOut,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withOpacity(0.15) : Colors.transparent,
+          color: isSelected ? AppColors.primary.withValues(alpha: 0.15) : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Column(
@@ -145,7 +144,7 @@ class _MainScreenState extends State<MainScreen> {
           children: [
             Icon(
               isSelected ? activeIcon : icon,
-              color: isSelected ? AppColors.primary : Colors.white.withOpacity(0.4),
+              color: isSelected ? AppColors.primary : Colors.white.withValues(alpha: 0.4),
               size: 26,
             ),
             if (isSelected) ...[

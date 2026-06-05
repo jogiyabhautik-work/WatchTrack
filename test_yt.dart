@@ -1,1 +1,1 @@
-import 'dart:io'; import 'package:youtube_explode_dart/youtube_explode_dart.dart'; void main() async { var yt = YoutubeExplode(); var manifest = await yt.videos.streamsClient.getManifest('dQw4w9WgXcQ'); var url = manifest.audioOnly.first.url; print(url); yt.close(); }
+import 'package:youtube_explode_dart/youtube_explode_dart.dart'; void main() async { var yt = YoutubeExplode(); var manifest = await yt.videos.streamsClient.getManifest('dQw4w9WgXcQ'); var url = manifest.audioOnly.first.url; print(url); yt.close(); }

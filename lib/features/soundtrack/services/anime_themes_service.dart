@@ -46,8 +46,9 @@ class AnimeThemesService {
         for (var theme in themes) {
           final typeStr = theme['type']?.toString().toUpperCase() ?? '';
           SongType type = SongType.unknown;
-          if (typeStr == 'OP') type = SongType.opening;
-          else if (typeStr == 'ED') type = SongType.ending;
+          if (typeStr == 'OP') {
+            type = SongType.opening;
+          } else if (typeStr == 'ED') type = SongType.ending;
           else if (typeStr == 'IN') type = SongType.insert;
 
           final songData = theme['song'];

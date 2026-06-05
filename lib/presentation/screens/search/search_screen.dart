@@ -241,7 +241,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<int?>(
-                      value: _selectedYear,
+                      initialValue: _selectedYear,
                       dropdownColor: AppColors.surface,
                       style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
                       decoration: InputDecoration(
@@ -271,7 +271,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField<String>(
-                      value: _selectedLanguage,
+                      initialValue: _selectedLanguage,
                       dropdownColor: AppColors.surface,
                       style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
                       decoration: InputDecoration(
@@ -364,7 +364,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   center: const Alignment(-0.6, -0.8),
                   radius: 1.2,
                   colors: [
-                    AppColors.primary.withOpacity(0.12),
+                    AppColors.primary.withValues(alpha: 0.12),
                     AppColors.background,
                   ],
                 ),
@@ -573,7 +573,7 @@ class _SearchScreenState extends State<SearchScreen> {
           }
   
           return GridView.builder(
-            key: PageStorageKey('search_results_${_selectedFilter}'),
+            key: PageStorageKey('search_results_$_selectedFilter'),
             physics: const AlwaysScrollableScrollPhysics(
               parent: BouncingScrollPhysics(),
             ),
@@ -596,7 +596,6 @@ class _SearchScreenState extends State<SearchScreen> {
         },
       ),
     );
-;
   }
 
   Widget _buildResultCard(Movie movie) {
@@ -687,7 +686,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.7),
+                      Colors.black.withValues(alpha: 0.7),
                     ],
                   ),
                 ),

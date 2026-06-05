@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:watch_track/data/models/movie_model.dart';
 import 'package:watch_track/core/cache_manager.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart' show DefaultCacheManager;
 
 class ApiService {
@@ -381,7 +380,7 @@ class ApiService {
     final genreId = _genreMap[genreName.toLowerCase()];
     if (genreId == null) return [];
 
-    final cacheKey = 'movies_by_genre_${genreName}_${isMovie}_${page}_${language}_${sortBy}_${monetization}';
+    final cacheKey = 'movies_by_genre_${genreName}_${isMovie}_${page}_${language}_${sortBy}_$monetization';
     if (!forceRefresh) {
       final cached = await CacheManager.get(cacheKey);
       if (cached != null) {

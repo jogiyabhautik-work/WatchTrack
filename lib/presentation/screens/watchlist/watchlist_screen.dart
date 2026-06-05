@@ -9,7 +9,6 @@ import 'package:watch_track/core/constants/app_colors.dart';
 import 'package:watch_track/core/providers/watchlist_folder_provider.dart';
 import 'package:watch_track/presentation/screens/watchlist/watchlist_detail_screen.dart';
 import 'package:watch_track/data/models/user_title_model.dart';
-import 'package:watch_track/data/models/movie_model.dart';
 import 'package:watch_track/features/import_watchlist/presentation/import_review_screen.dart';
 import 'package:watch_track/features/import_watchlist/presentation/watchlist_import_provider.dart';
 
@@ -194,7 +193,7 @@ class _WatchlistScreenState extends State<WatchlistScreen>
                         center: const Alignment(-0.6, -0.8),
                         radius: 1.2,
                         colors: [
-                          AppColors.primary.withOpacity(0.12),
+                          AppColors.primary.withValues(alpha: 0.12),
                           AppColors.background,
                         ],
                       ),
@@ -246,12 +245,12 @@ class _WatchlistScreenState extends State<WatchlistScreen>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: AppColors.surface.withOpacity(0.9),
+              color: AppColors.surface.withValues(alpha: 0.9),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white.withOpacity(0.1)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.4),
+                  color: Colors.black.withValues(alpha: 0.4),
                   blurRadius: 20,
                   offset: const Offset(0, 10),
                 ),
@@ -560,13 +559,13 @@ class _WatchlistScreenState extends State<WatchlistScreen>
                   Text(
                     'This folder is empty',
                     style: TextStyle(
-                        color: Colors.white.withOpacity(0.5), fontSize: 16),
+                        color: Colors.white.withValues(alpha: 0.5), fontSize: 16),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Add titles from the watchlist',
                     style: TextStyle(
-                        color: Colors.white.withOpacity(0.3), fontSize: 13),
+                        color: Colors.white.withValues(alpha: 0.3), fontSize: 13),
                   ),
                 ],
               ),
@@ -639,7 +638,7 @@ class _WatchlistScreenState extends State<WatchlistScreen>
             child: Container(
               decoration: BoxDecoration(
                 color: collapsed
-                    ? AppColors.background.withOpacity(0.85)
+                    ? AppColors.background.withValues(alpha: 0.85)
                     : Colors.transparent,
               ),
               child: FlexibleSpaceBar(
@@ -693,12 +692,12 @@ class _WatchlistScreenState extends State<WatchlistScreen>
           )
         else ...[
           IconButton(
-            icon: Icon(Icons.upload_file_rounded, color: Colors.white.withOpacity(0.85)),
+            icon: Icon(Icons.upload_file_rounded, color: Colors.white.withValues(alpha: 0.85)),
             onPressed: () => _showImportOptionsSheet(context),
           ),
           IconButton(
             icon: Icon(Icons.search_rounded,
-                color: Colors.white.withOpacity(0.85)),
+                color: Colors.white.withValues(alpha: 0.85)),
             onPressed: () => setState(() => _searchActive = true),
           ),
           // Toggle: list ↔ folder
@@ -707,7 +706,7 @@ class _WatchlistScreenState extends State<WatchlistScreen>
               _folderView
                   ? Icons.list_rounded
                   : Icons.folder_outlined,
-              color: Colors.white.withOpacity(0.85),
+              color: Colors.white.withValues(alpha: 0.85),
             ),
             onPressed: () => setState(() {
               _folderView = !_folderView;
@@ -731,10 +730,10 @@ class _WatchlistScreenState extends State<WatchlistScreen>
               padding:
                   const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.18),
+                color: AppColors.primary.withValues(alpha: 0.18),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                    color: AppColors.primary.withOpacity(0.35),
+                    color: AppColors.primary.withValues(alpha: 0.35),
                     width: 1),
               ),
               child: Text(
@@ -806,9 +805,9 @@ class _WatchlistScreenState extends State<WatchlistScreen>
       decoration: InputDecoration(
         hintText: 'Search watchlist…',
         hintStyle:
-            TextStyle(color: Colors.white.withOpacity(0.35), fontSize: compact ? 15 : 18),
+            TextStyle(color: Colors.white.withValues(alpha: 0.35), fontSize: compact ? 15 : 18),
         prefixIcon: Icon(Icons.search_rounded,
-            color: Colors.white.withOpacity(0.4),
+            color: Colors.white.withValues(alpha: 0.4),
             size: compact ? 18 : 22),
         border: InputBorder.none,
         contentPadding: EdgeInsets.symmetric(
@@ -840,7 +839,7 @@ class _WatchlistScreenState extends State<WatchlistScreen>
                   decoration: BoxDecoration(
                     color: isSelected
                         ? AppColors.primary
-                        : Colors.white.withOpacity(0.05),
+                        : Colors.white.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: isSelected
@@ -849,7 +848,7 @@ class _WatchlistScreenState extends State<WatchlistScreen>
                     ),
                     boxShadow: isSelected ? [
                       BoxShadow(
-                        color: AppColors.primary.withOpacity(0.3),
+                        color: AppColors.primary.withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       )
@@ -871,7 +870,7 @@ class _WatchlistScreenState extends State<WatchlistScreen>
                           '($count)',
                           style: GoogleFonts.dmSans(
                             color: isSelected
-                                ? Colors.white.withOpacity(0.7)
+                                ? Colors.white.withValues(alpha: 0.7)
                                 : Colors.white24,
                             fontSize: 11,
                           ),
@@ -973,9 +972,9 @@ class _WatchlistScreenState extends State<WatchlistScreen>
             height: 80,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.primary.withOpacity(0.08),
+              color: AppColors.primary.withValues(alpha: 0.08),
               border: Border.all(
-                  color: AppColors.primary.withOpacity(0.2), width: 1.5),
+                  color: AppColors.primary.withValues(alpha: 0.2), width: 1.5),
             ),
             child: const Icon(Icons.bookmark_border_rounded,
                 color: AppColors.primary, size: 36),
@@ -993,7 +992,7 @@ class _WatchlistScreenState extends State<WatchlistScreen>
             'Tap the bookmark on any title\nto add it to your watchlist',
             textAlign: TextAlign.center,
             style: TextStyle(
-                color: Colors.white.withOpacity(0.4),
+                color: Colors.white.withValues(alpha: 0.4),
                 fontSize: 14,
                 height: 1.6),
           ),
@@ -1017,7 +1016,7 @@ class _WatchlistScreenState extends State<WatchlistScreen>
           borderRadius: BorderRadius.circular(26),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withOpacity(0.4),
+              color: AppColors.primary.withValues(alpha: 0.4),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -1051,10 +1050,10 @@ class _WatchlistScreenState extends State<WatchlistScreen>
       onTap: _showCreateFolderSheet,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.04),
+          color: Colors.white.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: AppColors.primary.withOpacity(0.3),
+            color: AppColors.primary.withValues(alpha: 0.3),
             width: 1.5,
             strokeAlign: BorderSide.strokeAlignInside,
           ),
@@ -1067,7 +1066,7 @@ class _WatchlistScreenState extends State<WatchlistScreen>
               height: 48,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
               ),
               child: const Icon(Icons.add_rounded,
                   color: AppColors.primary, size: 26),
@@ -1229,9 +1228,9 @@ class _WatchlistScreenState extends State<WatchlistScreen>
           style: const TextStyle(color: Colors.white),
           decoration: InputDecoration(
             hintText: 'Movie/Show Title 1\nMovie/Show Title 2\n...',
-            hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
-            border: OutlineInputBorder(borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
-            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white.withOpacity(0.1))),
+            hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.3)),
+            border: OutlineInputBorder(borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1))),
+            enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1))),
           ),
         ),
         actions: [
@@ -1301,7 +1300,7 @@ class _SortBarDelegate extends SliverPersistentHeaderDelegate {
           Text(
             'Sort by',
             style: TextStyle(
-                color: Colors.white.withOpacity(0.35),
+                color: Colors.white.withValues(alpha: 0.35),
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 0.5),
@@ -1332,7 +1331,7 @@ class _SortBarDelegate extends SliverPersistentHeaderDelegate {
                         decoration: BoxDecoration(
                           color: selected
                               ? AppColors.primary
-                              : Colors.white.withOpacity(0.07),
+                              : Colors.white.withValues(alpha: 0.07),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -1340,7 +1339,7 @@ class _SortBarDelegate extends SliverPersistentHeaderDelegate {
                           style: TextStyle(
                             color: selected
                                 ? Colors.white
-                                : Colors.white.withOpacity(0.55),
+                                : Colors.white.withValues(alpha: 0.55),
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 0.3,
@@ -1360,12 +1359,12 @@ class _SortBarDelegate extends SliverPersistentHeaderDelegate {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: isFilterActive
-                    ? AppColors.primary.withOpacity(0.15)
-                    : Colors.white.withOpacity(0.05),
+                    ? AppColors.primary.withValues(alpha: 0.15)
+                    : Colors.white.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: isFilterActive
-                      ? AppColors.primary.withOpacity(0.5)
+                      ? AppColors.primary.withValues(alpha: 0.5)
                       : Colors.white10,
                 ),
               ),
@@ -1420,10 +1419,10 @@ class _MovieCard extends StatelessWidget {
         child: Container(
           height: 110,
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.white.withOpacity(0.05),
+            color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : Colors.white.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-                color: isSelected ? AppColors.primary.withOpacity(0.5) : Colors.white.withOpacity(0.07), 
+                color: isSelected ? AppColors.primary.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.07), 
                 width: 1),
           ),
           child: Row(children: [
@@ -1491,9 +1490,9 @@ class _MovieCard extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: _getStatusColor(movie.status).withOpacity(0.1),
+                          color: _getStatusColor(movie.status).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: _getStatusColor(movie.status).withOpacity(0.3), width: 0.5),
+                          border: Border.all(color: _getStatusColor(movie.status).withValues(alpha: 0.3), width: 0.5),
                         ),
                         child: Text(
                           movie.status.displayName.toUpperCase(),
@@ -1509,7 +1508,7 @@ class _MovieCard extends StatelessWidget {
                       Text(
                         relativeTime,
                         style: TextStyle(
-                            color: Colors.white.withOpacity(0.35),
+                            color: Colors.white.withValues(alpha: 0.35),
                             fontSize: 11),
                       ),
                     ]),
@@ -1558,9 +1557,9 @@ class _MovieCard extends StatelessWidget {
     return Container(
       width: 74,
       height: 110,
-      color: Colors.white.withOpacity(0.06),
+      color: Colors.white.withValues(alpha: 0.06),
       child: Icon(Icons.movie_outlined,
-          color: Colors.white.withOpacity(0.2), size: 28),
+          color: Colors.white.withValues(alpha: 0.2), size: 28),
     );
   }
 
@@ -1600,7 +1599,7 @@ class _ActionBtn extends StatelessWidget {
         height: 36,
         margin: const EdgeInsets.only(right: 8),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
+          color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(icon, color: color, size: 18),
@@ -1640,10 +1639,10 @@ class _FolderCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.white.withOpacity(0.05), width: 1),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.05), width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),
@@ -1667,8 +1666,8 @@ class _FolderCard extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.black.withOpacity(0.2),
-                        Colors.black.withOpacity(0.8),
+                        Colors.black.withValues(alpha: 0.2),
+                        Colors.black.withValues(alpha: 0.8),
                       ],
                     ),
                   ),
@@ -1687,7 +1686,7 @@ class _FolderCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
+                        color: Colors.white.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white24),
                       ),
@@ -1850,10 +1849,10 @@ class _CountBadge extends StatelessWidget {
       padding: EdgeInsets.symmetric(
           horizontal: small ? 8 : 12, vertical: small ? 3 : 5),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.15),
+        color: AppColors.primary.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-            color: AppColors.primary.withOpacity(0.3), width: 1),
+            color: AppColors.primary.withValues(alpha: 0.3), width: 1),
       ),
       child: Text(
         '$count',
@@ -1937,7 +1936,7 @@ class _FolderFormSheetState extends State<_FolderFormSheet> {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -1958,7 +1957,7 @@ class _FolderFormSheetState extends State<_FolderFormSheet> {
               Text(
                 'Pick an icon',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.5),
+                  color: Colors.white.withValues(alpha: 0.5),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.8,
@@ -1980,8 +1979,8 @@ class _FolderFormSheetState extends State<_FolderFormSheet> {
                         margin: const EdgeInsets.only(right: 8),
                         decoration: BoxDecoration(
                           color: sel
-                              ? AppColors.primary.withOpacity(0.2)
-                              : Colors.white.withOpacity(0.06),
+                              ? AppColors.primary.withValues(alpha: 0.2)
+                              : Colors.white.withValues(alpha: 0.06),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: sel ? AppColors.primary : Colors.transparent,
@@ -2006,7 +2005,7 @@ class _FolderFormSheetState extends State<_FolderFormSheet> {
               Text(
                 'Folder name',
                 style: TextStyle(
-                  color: Colors.white.withOpacity(0.5),
+                  color: Colors.white.withValues(alpha: 0.5),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.8,
@@ -2015,10 +2014,10 @@ class _FolderFormSheetState extends State<_FolderFormSheet> {
               const SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.06),
+                  color: Colors.white.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: Colors.white.withOpacity(0.1),
+                    color: Colors.white.withValues(alpha: 0.1),
                     width: 1,
                   ),
                 ),
@@ -2036,7 +2035,7 @@ class _FolderFormSheetState extends State<_FolderFormSheet> {
                   decoration: InputDecoration(
                     hintText: 'e.g. Must Watch, Movie Night…',
                     hintStyle: TextStyle(
-                      color: Colors.white.withOpacity(0.3),
+                      color: Colors.white.withValues(alpha: 0.3),
                       fontSize: 15,
                     ),
                     border: InputBorder.none,
@@ -2111,7 +2110,7 @@ class _FolderPickerSheet extends StatelessWidget {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -2135,7 +2134,7 @@ class _FolderPickerSheet extends StatelessWidget {
                 subtitle: Text(
                   '${f.movieIds.length} titles',
                   style: TextStyle(
-                      color: Colors.white.withOpacity(0.4), fontSize: 12),
+                      color: Colors.white.withValues(alpha: 0.4), fontSize: 12),
                 ),
                 contentPadding: EdgeInsets.zero,
                 onTap: () {
@@ -2194,7 +2193,7 @@ class _QuickMenuSheet extends StatelessWidget {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(2)),
             ),
           ),
@@ -2209,7 +2208,7 @@ class _QuickMenuSheet extends StatelessWidget {
           const SizedBox(height: 16),
           ...items.map((item) => ListTile(
                 leading: Icon(item.icon,
-                    color: item.color ?? Colors.white.withOpacity(0.8),
+                    color: item.color ?? Colors.white.withValues(alpha: 0.8),
                     size: 22),
                 title: Text(
                   item.label,
@@ -2289,7 +2288,7 @@ class _AdvancedFilterSheetState extends State<_AdvancedFilterSheet> {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -2339,7 +2338,7 @@ class _AdvancedFilterSheetState extends State<_AdvancedFilterSheet> {
                   selected: isSelected,
                   onSelected: (val) => setState(() => _type = val ? t : _MediaTypeFilter.all),
                   selectedColor: AppColors.primary,
-                  backgroundColor: Colors.white.withOpacity(0.05),
+                  backgroundColor: Colors.white.withValues(alpha: 0.05),
                   labelStyle: GoogleFonts.dmSans(
                     color: isSelected ? Colors.white : Colors.white60,
                     fontSize: 12,
@@ -2366,7 +2365,7 @@ class _AdvancedFilterSheetState extends State<_AdvancedFilterSheet> {
                     selected: isSelected,
                     onSelected: (val) => setState(() => _genre = val ? g : null),
                     selectedColor: AppColors.primary,
-                    backgroundColor: Colors.white.withOpacity(0.05),
+                    backgroundColor: Colors.white.withValues(alpha: 0.05),
                     labelStyle: GoogleFonts.dmSans(
                       color: isSelected ? Colors.white : Colors.white60,
                       fontSize: 12,
@@ -2393,7 +2392,7 @@ class _AdvancedFilterSheetState extends State<_AdvancedFilterSheet> {
                     selected: isSelected,
                     onSelected: (val) => setState(() => _year = val ? y : null),
                     selectedColor: AppColors.primary,
-                    backgroundColor: Colors.white.withOpacity(0.05),
+                    backgroundColor: Colors.white.withValues(alpha: 0.05),
                     labelStyle: GoogleFonts.dmSans(
                       color: isSelected ? Colors.white : Colors.white60,
                       fontSize: 12,
@@ -2475,7 +2474,7 @@ class _MovieGridCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -2504,8 +2503,8 @@ class _MovieGridCard extends StatelessWidget {
                       end: Alignment.bottomCenter,
                       colors: [
                         Colors.transparent,
-                        Colors.black.withOpacity(0.1),
-                        Colors.black.withOpacity(0.9),
+                        Colors.black.withValues(alpha: 0.1),
+                        Colors.black.withValues(alpha: 0.9),
                       ],
                     ),
                   ),
@@ -2515,7 +2514,7 @@ class _MovieGridCard extends StatelessWidget {
               if (isSelectionMode)
                 Positioned.fill(
                   child: Container(
-                    color: isSelected ? AppColors.primary.withOpacity(0.4) : Colors.black45,
+                    color: isSelected ? AppColors.primary.withValues(alpha: 0.4) : Colors.black45,
                     child: Center(
                       child: Icon(
                         isSelected ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded,

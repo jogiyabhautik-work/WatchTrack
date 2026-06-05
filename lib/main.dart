@@ -18,7 +18,6 @@ import 'package:watch_track/back-end/api_service.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:watch_track/core/appwrite_setup.dart';
 import 'package:watch_track/core/providers/audio_player_provider.dart';
 import 'package:watch_track/core/providers/lyrics_provider.dart';
 import 'package:audio_service/audio_service.dart';

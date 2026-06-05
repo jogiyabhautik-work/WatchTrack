@@ -194,7 +194,7 @@ class _AdvancedVideoPlayerState extends State<AdvancedVideoPlayer> {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter, end: Alignment.bottomCenter,
-                        colors: [Colors.black.withOpacity(0.8), Colors.transparent],
+                        colors: [Colors.black.withValues(alpha: 0.8), Colors.transparent],
                       ),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -227,7 +227,7 @@ class _AdvancedVideoPlayerState extends State<AdvancedVideoPlayer> {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.bottomCenter, end: Alignment.topCenter,
-                        colors: [Colors.black.withOpacity(0.8), Colors.transparent],
+                        colors: [Colors.black.withValues(alpha: 0.8), Colors.transparent],
                       ),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

@@ -12,7 +12,7 @@ class ImportItemTile extends StatelessWidget {
   final MatchResult result;
   final VoidCallback onToggle;
 
-  const ImportItemTile({Key? key, required this.result, required this.onToggle}) : super(key: key);
+  const ImportItemTile({super.key, required this.result, required this.onToggle});
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class ImportItemTile extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            if (result.status == MatchStatus.needsReview && result.alternativeMatches != null && result.alternativeMatches!.isNotEmpty) ...[
+            if (result.status == MatchStatus.needsReview && result.alternativeMatches.isNotEmpty) ...[
               const SizedBox(height: 8),
               _buildAlternativesDropdown(context),
             ],
@@ -54,7 +54,7 @@ class ImportItemTile extends StatelessWidget {
               const SizedBox(height: 4),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(color: Colors.orange.withOpacity(0.2), borderRadius: BorderRadius.circular(4)),
+                decoration: BoxDecoration(color: Colors.orange.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(4)),
                 child: Text('Already Tracking', style: GoogleFonts.dmSans(color: Colors.orange, fontSize: 10)),
               ),
             ],
@@ -74,7 +74,7 @@ class ImportItemTile extends StatelessWidget {
       icon: const Icon(Icons.arrow_drop_down, color: Colors.white54),
       underline: Container(height: 1, color: Colors.white24),
       style: GoogleFonts.dmSans(color: Colors.white, fontSize: 12),
-      items: result.alternativeMatches!.map((Movie m) {
+      items: result.alternativeMatches.map((Movie m) {
         return DropdownMenuItem<Movie>(
           value: m,
           child: Text('${m.title} (${m.releaseDate.split('-').first}) - ${m.isMovie ? 'Movie' : 'TV'}', overflow: TextOverflow.ellipsis),

@@ -20,7 +20,7 @@ class AboutScreen extends StatelessWidget {
     final bg = Theme.of(context).scaffoldBackgroundColor;
     final surface = Theme.of(context).colorScheme.surface;
     final text = Theme.of(context).colorScheme.onSurface;
-    final textMuted = text.withOpacity(0.6);
+    final textMuted = text.withValues(alpha: 0.6);
 
     return Scaffold(
       backgroundColor: bg,
@@ -207,7 +207,7 @@ class AboutScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: AppColors.primary.withOpacity(0.1),
+            color: AppColors.primary.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: AppColors.primary, size: 22),

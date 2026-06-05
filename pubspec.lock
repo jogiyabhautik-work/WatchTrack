@@ -241,14 +241,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.9"
-  dart_appwrite:
-    dependency: "direct dev"
-    description:
-      name: dart_appwrite
-      sha256: b351ba35de036c7443eee2889bd76bb2cc46ce9338475b6ba12b6c5dfa779ace
-      url: "https://pub.dev"
-    source: hosted
-    version: "12.2.0"
   dbus:
     dependency: transitive
     description:
@@ -375,7 +367,7 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_cache_manager:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_cache_manager
       sha256: "400b6592f16a4409a7f2bb929a9a7e38c72cceb8ffb99ee57bbf2cb2cecf8386"
@@ -622,7 +614,7 @@ packages:
     source: hosted
     version: "4.8.0"
   intl:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: intl
       sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -84,7 +83,7 @@ class _AudioLibraryScreenState extends State<AudioLibraryScreen> {
                     center: const Alignment(0.6, -0.8),
                     radius: 1.2,
                     colors: [
-                      AppColors.primary.withOpacity(0.12),
+                      AppColors.primary.withValues(alpha: 0.12),
                       AppColors.background,
                     ],
                   ),
@@ -125,9 +124,9 @@ class _AudioLibraryScreenState extends State<AudioLibraryScreen> {
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                       decoration: BoxDecoration(
-                                        color: AppColors.primary.withOpacity(0.2),
+                                        color: AppColors.primary.withValues(alpha: 0.2),
                                         borderRadius: BorderRadius.circular(20),
-                                        border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                                        border: Border.all(color: AppColors.primary.withValues(alpha: 0.3)),
                                       ),
                                       child: Text(
                                         '${favoriteSongs.length} Liked',
@@ -146,7 +145,7 @@ class _AudioLibraryScreenState extends State<AudioLibraryScreen> {
                                 decoration: BoxDecoration(
                                   color: AppColors.surface,
                                   borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(color: Colors.white.withOpacity(0.05)),
+                                  border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
                                 ),
                                 child: TextField(
                                   controller: _searchController,
@@ -201,7 +200,7 @@ class _AudioLibraryScreenState extends State<AudioLibraryScreen> {
                                 Icon(
                                   _isSearching ? Icons.search_off_rounded : Icons.library_music_rounded,
                                   size: 80,
-                                  color: Colors.white.withOpacity(0.1),
+                                  color: Colors.white.withValues(alpha: 0.1),
                                 ),
                                 const SizedBox(height: 16),
                                 Text(

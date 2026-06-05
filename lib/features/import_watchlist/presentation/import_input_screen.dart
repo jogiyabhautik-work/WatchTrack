@@ -6,7 +6,7 @@ import 'package:watch_track/features/import_watchlist/presentation/watchlist_imp
 import 'package:watch_track/features/import_watchlist/presentation/import_review_screen.dart';
 
 class ImportInputScreen extends StatefulWidget {
-  const ImportInputScreen({Key? key}) : super(key: key);
+  const ImportInputScreen({super.key});
 
   @override
   State<ImportInputScreen> createState() => _ImportInputScreenState();

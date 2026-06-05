@@ -6,21 +6,15 @@ import 'package:shimmer/shimmer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:watch_track/presentation/widgets/movie_card.dart';
 import 'package:watch_track/core/constants/app_colors.dart';
 import 'package:watch_track/data/models/movie_model.dart';
 import 'package:watch_track/back-end/api_service.dart';
-import 'package:watch_track/presentation/screens/genre/genre_screen.dart';
 import 'package:watch_track/presentation/screens/actor/actor_detail_screen.dart';
-import 'package:watch_track/core/providers/user_data_provider.dart';
 import 'package:watch_track/core/providers/tracking_provider.dart';
-import 'package:watch_track/core/providers/watchlist_folder_provider.dart';
 import 'package:watch_track/data/models/user_title_model.dart';
-import 'package:watch_track/presentation/widgets/watchlist_action_sheet.dart';
 import 'package:watch_track/presentation/widgets/watchlist_action_sheet.dart';
 import 'package:watch_track/core/utils/adaptive_theme_helper.dart';
 import 'package:watch_track/features/soundtrack/presentation/widgets/songs_section.dart';
@@ -255,7 +249,7 @@ class _DetailScreenState extends State<DetailScreen> {
           BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
             child: Container(
-              color: Colors.black.withOpacity(0.6),
+              color: Colors.black.withValues(alpha: 0.6),
             ),
           ),
           Container(
@@ -265,7 +259,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 end: Alignment.bottomCenter,
                 colors: [
                   Colors.transparent,
-                  Colors.black.withOpacity(0.8),
+                  Colors.black.withValues(alpha: 0.8),
                   Colors.black,
                 ],
               ),
@@ -372,7 +366,7 @@ class _DetailScreenState extends State<DetailScreen> {
                         stops: const [0.5, 0.8, 1.0],
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(0.6),
+                          Colors.black.withValues(alpha: 0.6),
                           Colors.black,
                         ],
                       ),
@@ -465,9 +459,9 @@ class _DetailScreenState extends State<DetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.5), width: 0.5),
+        border: Border.all(color: color.withValues(alpha: 0.5), width: 0.5),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -571,7 +565,7 @@ class _DetailScreenState extends State<DetailScreen> {
                           ? _accentColor
                           : AppColors.textSecondary,
                       backgroundColor: inWatchlist
-                          ? _accentColor.withOpacity(0.05)
+                          ? _accentColor.withValues(alpha: 0.05)
                           : Colors.transparent,
                       padding: const EdgeInsets.symmetric(
                           vertical: 12, horizontal: 8),
@@ -595,7 +589,7 @@ class _DetailScreenState extends State<DetailScreen> {
                       : Icons.favorite_border_rounded,
                   color: isFav ? Colors.pinkAccent : AppColors.textSecondary,
                   bgColor: isFav
-                      ? Colors.pinkAccent.withOpacity(0.12)
+                      ? Colors.pinkAccent.withValues(alpha: 0.12)
                       : AppColors.surface,
                   tooltip: isFav ? 'Remove favourite' : 'Add to favourites',
                   onTap: () {
@@ -753,7 +747,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   margin: const EdgeInsets.only(bottom: 12),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.05),
+                    color: Colors.white.withValues(alpha: 0.05),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -771,7 +765,7 @@ class _DetailScreenState extends State<DetailScreen> {
                     ],
                   ),
                 ))
-            .toList(),
+            ,
       ],
     );
   }
@@ -920,7 +914,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   movie: movie,
                   accentColor: _accentColor,
                 ))
-            .toList(),
+            ,
       ],
     );
   }
@@ -1114,7 +1108,7 @@ class _DetailScreenState extends State<DetailScreen> {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: Colors.white.withOpacity(0.05),
+            color: Colors.white.withValues(alpha: 0.05),
             width: 1,
           ),
         ),
@@ -1222,7 +1216,7 @@ class _DetailScreenState extends State<DetailScreen> {
           child: Column(
             children: [
               Icon(Icons.rate_review_outlined, 
-                  size: 48, color: Colors.white.withOpacity(0.1)),
+                  size: 48, color: Colors.white.withValues(alpha: 0.1)),
               const SizedBox(height: 16),
               Text(
                 'No reviews yet',
@@ -1294,7 +1288,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.ratingGold.withOpacity(0.1),
+                    color: AppColors.ratingGold.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -1519,7 +1513,7 @@ class _SeasonTileState extends State<SeasonTile> {
                       accentColor: widget.accentColor,
                     ),
                   );
-                }).toList(),
+                }),
                 const SizedBox(height: 16),
               ],
             ),

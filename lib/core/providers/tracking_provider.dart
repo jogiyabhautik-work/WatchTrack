@@ -280,7 +280,7 @@ class TrackingProvider extends ChangeNotifier {
     if (id == 0) return;
 
     final existing = _trackedTitles[id];
-    final epKey = "S${season}E${episode}";
+    final epKey = "S${season}E$episode";
 
     List<String> watched = List.from(existing?.watchedEpisodes ?? []);
     if (watched.contains(epKey)) {

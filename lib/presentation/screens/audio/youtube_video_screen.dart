@@ -208,7 +208,7 @@ class _YouTubeVideoScreenState extends State<YouTubeVideoScreen> {
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [Colors.black.withOpacity(0.8), Colors.transparent],
+                        colors: [Colors.black.withValues(alpha: 0.8), Colors.transparent],
                       ),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -253,7 +253,7 @@ class _YouTubeVideoScreenState extends State<YouTubeVideoScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withOpacity(0.3),
+                                color: AppColors.primary.withValues(alpha: 0.3),
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(color: AppColors.primary, width: 0.5),
                               ),
@@ -309,7 +309,7 @@ class _YouTubeVideoScreenState extends State<YouTubeVideoScreen> {
                       gradient: LinearGradient(
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
-                        colors: [Colors.black.withOpacity(0.8), Colors.transparent],
+                        colors: [Colors.black.withValues(alpha: 0.8), Colors.transparent],
                       ),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

@@ -137,7 +137,7 @@ class _ActorDetailScreenState extends State<ActorDetailScreen> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppColors.surface.withOpacity(0.15),
+                  color: AppColors.surface.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 16),

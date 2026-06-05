@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:watch_track/core/constants/app_colors.dart';
 import 'package:watch_track/data/models/movie_model.dart';
 import 'package:watch_track/back-end/api_service.dart';
 import 'package:watch_track/presentation/screens/anime/anime_home_screen.dart';
@@ -104,7 +103,7 @@ class _AnimeActorDetailScreenState extends State<AnimeActorDetailScreen> {
       child: CustomPaint(
         painter: MangaPanelPainter(
           showScreentone: true,
-          screentoneColor: AnimeColors.screentone.withOpacity(0.03),
+          screentoneColor: AnimeColors.screentone.withValues(alpha: 0.03),
         ),
       ),
     );
@@ -206,7 +205,7 @@ class _AnimeActorDetailScreenState extends State<AnimeActorDetailScreen> {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.3),
+                      Colors.black.withValues(alpha: 0.3),
                       AnimeColors.background,
                     ],
                   ),
@@ -317,7 +316,7 @@ class _SpeedLinesPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.2)
+      ..color = Colors.white.withValues(alpha: 0.2)
       ..strokeWidth = 1.0;
 
     final random = math.Random(42);

@@ -32,7 +32,7 @@ class _BingePlannerWidgetState extends State<BingePlannerWidget> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.1),
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.calendar_month, color: AppColors.primary, size: 20),
@@ -94,7 +94,7 @@ class _BingePlannerWidgetState extends State<BingePlannerWidget> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.primary.withOpacity(0.05),
+              color: AppColors.primary.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(

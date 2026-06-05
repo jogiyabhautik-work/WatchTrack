@@ -8,11 +8,8 @@ import 'package:watch_track/core/providers/user_data_provider.dart';
 import 'package:watch_track/core/providers/tracking_provider.dart';
 import 'package:watch_track/presentation/screens/watchlist/watchlist_detail_screen.dart';
 import 'package:watch_track/data/models/user_title_model.dart';
-import 'package:watch_track/data/models/movie_model.dart';
-import 'package:watch_track/presentation/screens/detail/detail_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:watch_track/core/appwrite_setup.dart';
 import 'package:watch_track/presentation/screens/profile/edit_profile_screen.dart';
 import 'package:watch_track/presentation/screens/profile/about_screen.dart';
 import 'package:watch_track/presentation/screens/profile/account_settings_screen.dart';
@@ -36,7 +33,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final bg = Theme.of(context).scaffoldBackgroundColor;
     final surface = Theme.of(context).colorScheme.surface;
     final text = Theme.of(context).colorScheme.onSurface;
-    final textMuted = text.withOpacity(0.6);
+    final textMuted = text.withValues(alpha: 0.6);
     final border = Theme.of(context).brightness == Brightness.dark ? AppColors.borderDefault : Colors.grey.shade300;
 
     return Scaffold(
@@ -51,7 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   center: const Alignment(-0.6, -0.8),
                   radius: 1.2,
                   colors: [
-                    AppColors.primary.withOpacity(0.12),
+                    AppColors.primary.withValues(alpha: 0.12),
                     AppColors.background,
                   ],
                 ),
@@ -217,16 +214,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Text(
                       user?.email ?? 'Free Member',
                       style: GoogleFonts.dmSans(
-                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                         fontSize: 12,
                       ),
                     ),
-                    if (user != null && user.registration != null) ...[
+                    if (user != null) ...[
                       const SizedBox(height: 4),
                       Text(
                         'Member since ${DateFormat.yMMMd().format(DateTime.parse(user.registration))}',
                         style: GoogleFonts.dmSans(
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                           fontSize: 10,
                           fontStyle: FontStyle.italic,
                         ),
@@ -249,9 +246,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: Colors.orange.withOpacity(0.2),
+                            color: Colors.orange.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: Colors.orange.withOpacity(0.5)),
+                            border: Border.all(color: Colors.orange.withValues(alpha: 0.5)),
                           ),
                           child: const Row(
                             mainAxisSize: MainAxisSize.min,
@@ -302,7 +299,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Text(
             label.toUpperCase(),
             style: GoogleFonts.dmSans(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               fontSize: 10,
               fontWeight: FontWeight.bold,
             ),
@@ -340,12 +337,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           borderRadius: BorderRadius.circular(24),
           border: Border.all(
               color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white.withOpacity(0.05)
-                  : Colors.black.withOpacity(0.05),
+                  ? Colors.white.withValues(alpha: 0.05)
+                  : Colors.black.withValues(alpha: 0.05),
               width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 10),
             ),
@@ -400,7 +397,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     Text(
                       'LOYALTY LEVEL: BINGE MASTER',
-                      style: GoogleFonts.dmSans(color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), fontSize: 9, fontWeight: FontWeight.bold),
+                      style: GoogleFonts.dmSans(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 9, fontWeight: FontWeight.bold),
                     ),
                     Text(
                       'XP: ${watched.length * 100}/1000',
@@ -443,7 +440,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Text(
           label,
           style: GoogleFonts.dmSans(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
             fontSize: 8,
             fontWeight: FontWeight.bold,
             letterSpacing: 1,
@@ -478,7 +475,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           child: Text(
             title,
             style: GoogleFonts.dmSans(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
               fontSize: 10,
               letterSpacing: 2,
               fontWeight: FontWeight.bold,
@@ -568,7 +565,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Text(
               'ACCOUNT',
               style: GoogleFonts.dmSans(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 fontSize: 10,
                 letterSpacing: 2,
                 fontWeight: FontWeight.bold,
@@ -598,7 +595,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Text(
               'PREFERENCES',
               style: GoogleFonts.dmSans(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                 fontSize: 10,
                 letterSpacing: 2,
                 fontWeight: FontWeight.bold,
@@ -615,7 +612,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               builder: (context, theme, child) => Switch(
                 value: theme.isDarkMode,
                 onChanged: (v) => theme.toggleTheme(),
-                activeColor: AppColors.primary,
+                activeThumbColor: AppColors.primary,
               ),
             ),
           ),
@@ -626,7 +623,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             onTap: () {
               Navigator.push(context, MaterialPageRoute(builder: (context) => const AboutScreen()));
             },
-            trailing: Icon(Icons.arrow_forward_ios, color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6), size: 14),
+            trailing: Icon(Icons.arrow_forward_ios, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), size: 14),
           ),
 
         ],
@@ -641,7 +638,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required Widget trailing,
     VoidCallback? onTap,
   }) {
-    final textMuted = context != null ? Theme.of(context).colorScheme.onSurface.withOpacity(0.6) : AppColors.textMuted;
+    final textMuted = context != null ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6) : AppColors.textMuted;
     final text = context != null ? Theme.of(context).colorScheme.onSurface : Colors.white;
     final border = context != null 
         ? (Theme.of(context).brightness == Brightness.dark ? AppColors.borderDefault : Colors.grey.shade300)
@@ -721,10 +718,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         width: 90,
                         margin: const EdgeInsets.only(right: 16),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
+                          color: Colors.white.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                            color: Colors.white.withOpacity(0.1),
+                            color: Colors.white.withValues(alpha: 0.1),
                           ),
                         ),
                         child: Column(

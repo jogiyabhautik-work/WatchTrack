@@ -251,7 +251,7 @@ class _WatchlistDetailScreenState extends State<WatchlistDetailScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Colors.black.withOpacity(0.3), AppColors.background],
+                  colors: [Colors.black.withValues(alpha: 0.3), AppColors.background],
                 ),
               ),
             ),
@@ -271,7 +271,7 @@ class _WatchlistDetailScreenState extends State<WatchlistDetailScreen> {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.5),
+                            color: Colors.black.withValues(alpha: 0.5),
                             blurRadius: 10,
                             offset: const Offset(0, 5),
                           ),
@@ -307,10 +307,10 @@ class _WatchlistDetailScreenState extends State<WatchlistDetailScreen> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.primary.withOpacity(0.2),
+                                color: AppColors.primary.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
-                                  color: AppColors.primary.withOpacity(0.5),
+                                  color: AppColors.primary.withValues(alpha: 0.5),
                                 ),
                               ),
                               child: Text(
@@ -559,7 +559,7 @@ class _WatchlistDetailScreenState extends State<WatchlistDetailScreen> {
                   activeTrackColor: AppColors.primary,
                   inactiveTrackColor: Colors.black26,
                   thumbColor: AppColors.primary,
-                  overlayColor: AppColors.primary.withOpacity(0.2),
+                  overlayColor: AppColors.primary.withValues(alpha: 0.2),
                   trackHeight: 4,
                 ),
                 child: Slider(
@@ -763,7 +763,7 @@ class _WatchlistDetailScreenState extends State<WatchlistDetailScreen> {
         Text(
           'DANGER ZONE',
           style: GoogleFonts.dmSans(
-            color: Colors.redAccent.withOpacity(0.7),
+            color: Colors.redAccent.withValues(alpha: 0.7),
             fontSize: 10,
             letterSpacing: 2,
             fontWeight: FontWeight.bold,
@@ -809,7 +809,7 @@ class _WatchlistDetailScreenState extends State<WatchlistDetailScreen> {
               );
             },
             style: OutlinedButton.styleFrom(
-              side: BorderSide(color: Colors.redAccent.withOpacity(0.3)),
+              side: BorderSide(color: Colors.redAccent.withValues(alpha: 0.3)),
               padding: const EdgeInsets.symmetric(vertical: 14),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -1034,7 +1034,7 @@ class _WatchlistEpisodeItem extends StatelessWidget {
                             vertical: 3,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.78),
+                            color: Colors.black.withValues(alpha: 0.78),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -1124,7 +1124,7 @@ class _WatchlistEpisodeItem extends StatelessWidget {
                       margin: const EdgeInsets.only(left: 12),
                       decoration: BoxDecoration(
                         color: isWatched
-                            ? AppColors.primary.withOpacity(0.18)
+                            ? AppColors.primary.withValues(alpha: 0.18)
                             : Colors.transparent,
                         shape: BoxShape.circle,
                         border: Border.all(

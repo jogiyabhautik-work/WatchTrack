@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:watch_track/core/constants/app_colors.dart';
 import 'package:watch_track/core/providers/auth_provider.dart';
 import 'package:watch_track/presentation/screens/auth/register_screen.dart';
@@ -52,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppColors.background.withOpacity(0.8),
+              AppColors.background.withValues(alpha: 0.8),
               AppColors.background,
             ],
           ),
@@ -156,9 +155,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
-                      color: Colors.redAccent.withOpacity(0.1),
+                      color: Colors.redAccent.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+                      border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
                     ),
                     child: Row(
                       children: [
