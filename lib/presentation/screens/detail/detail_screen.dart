@@ -815,7 +815,7 @@ class _DetailScreenState extends State<DetailScreen> {
         ),
         const SizedBox(height: 16),
         SizedBox(
-          height: 180,
+          height: 200,
           child: _isLoadingSimilar
               ? _buildHorizontalShimmer(120)
               : _similarMovies.isEmpty

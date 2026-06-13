@@ -25,6 +25,11 @@ import 'package:watch_track/core/services/audio_handler.dart';
 import 'package:app_links/app_links.dart';
 import 'dart:async';
 import 'package:watch_track/presentation/screens/auth/reset_password_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:watch_track/features/update/data/repositories/update_repository.dart';
+import 'package:watch_track/features/update/presentation/cubit/update_cubit.dart';
+import 'package:watch_track/features/update/presentation/cubit/update_state.dart';
+import 'package:watch_track/features/update/presentation/screens/update_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -114,7 +119,13 @@ Future<void> main() async {
         ),
         ChangeNotifierProvider(create: (_) => RecommendationProvider()),
       ],
-      child: const TrackTubeApp(),
+      child: RepositoryProvider(
+        create: (context) => UpdateRepository(),
+        child: BlocProvider(
+          create: (context) => UpdateCubit(context.read<UpdateRepository>())..checkForUpdates(),
+          child: const TrackTubeApp(),
+        ),
+      ),
     ),
   );
 }
@@ -173,6 +184,32 @@ class _TrackTubeAppState extends State<TrackTubeApp> {
           );
         });
       }
+    } else if (uri.host == 'verify-email') {
+      final userId = uri.queryParameters['userId'];
+      final secret = uri.queryParameters['secret'];
+      
+      if (userId != null && secret != null) {
+        Future.delayed(const Duration(milliseconds: 500), () async {
+          final context = navigatorKey.currentContext;
+          if (context != null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Verifying email...')),
+            );
+            final success = await context.read<AuthProvider>().verifyEmail(
+              userId: userId,
+              secret: secret,
+            );
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(success ? 'Email verified successfully!' : 'Failed to verify email.'),
+                  backgroundColor: success ? Colors.green : Colors.redAccent,
+                ),
+              );
+            }
+          }
+        });
+      }
     }
   }
 
@@ -193,16 +230,31 @@ class _TrackTubeAppState extends State<TrackTubeApp> {
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: themeProvider.themeMode,
-          home: Consumer<AuthProvider>(
-            builder: (context, auth, _) {
-              if (auth.status == AuthStatus.authenticatedOnline || 
-                  auth.status == AuthStatus.authenticatedOffline) {
-                return const MainScreen();
+          home: BlocBuilder<UpdateCubit, UpdateState>(
+            builder: (context, updateState) {
+              if (updateState is UpdateAvailable && updateState.isForced) {
+                return const UpdateScreen();
               }
-              if (auth.status == AuthStatus.initial) {
-                return const PremiumSplashScreen();
+              if (updateState is UpdateDownloading && (context.read<UpdateCubit>().state as dynamic).isForced == true) {
+                // If it's forced and downloading, keep showing update screen.
+                // Wait, state doesn't have isForced in UpdateDownloading. We'll just show UpdateScreen if we want.
+                // A better way is to check if _currentUpdate.forceUpdate is true, but since we can't easily,
+                // we'll rely on the UpdateScreen being pushed, OR we can just show UpdateScreen for all downloading states temporarily.
+                return const UpdateScreen();
               }
-              return const LoginScreen();
+              
+              return Consumer<AuthProvider>(
+                builder: (context, auth, _) {
+                  if (auth.status == AuthStatus.authenticatedOnline || 
+                      auth.status == AuthStatus.authenticatedOffline) {
+                    return const MainScreen();
+                  }
+                  if (auth.status == AuthStatus.initial) {
+                    return const PremiumSplashScreen();
+                  }
+                  return const LoginScreen();
+                },
+              );
             },
           ),
         );

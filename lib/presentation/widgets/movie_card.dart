@@ -31,7 +31,7 @@ class MovieCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: width ?? 120,
+        width: width ?? 140,
         margin: margin ?? const EdgeInsets.symmetric(horizontal: 8),
 
         child: ClipRRect(
@@ -43,7 +43,7 @@ class MovieCard extends StatelessWidget {
               Positioned.fill(
                 child: Hero(
                   tag: heroTag,
-                  child: CachedNetworkImage(
+                  child: posterUrl.isNotEmpty ? CachedNetworkImage(
                     imageUrl: posterUrl,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Shimmer.fromColors(
@@ -61,6 +61,15 @@ class MovieCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                  ) : Container(
+                      color: AppColors.surface2,
+                      child: const Center(
+                        child: Icon(
+                          Icons.movie_outlined,
+                          color: AppColors.textMuted,
+                          size: 32,
+                        ),
+                      ),
                   ),
                 ),
               ),

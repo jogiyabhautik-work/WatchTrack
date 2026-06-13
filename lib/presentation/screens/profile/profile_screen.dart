@@ -74,10 +74,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     
                     const SizedBox(height: 24),
 
-                    // ANALYTICS DASHBOARD
-                    _buildAnalyticsDashboard(context),
-
-                    const SizedBox(height: 32),
+                    // ANALYTICS DASHBOARD REMOVED
     
                     // LIBRARY SECTIONS
                     _buildLibrarySections(context),
@@ -96,7 +93,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         width: double.infinity,
                         height: 48,
                         child: OutlinedButton(
-                          onPressed: () => auth.logout(),
+                          onPressed: () {
+                            auth.logout();
+                            Navigator.of(context, rootNavigator: true).popUntil((route) => route.isFirst);
+                          },
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: AppColors.primary, width: 0.5),
                             foregroundColor: AppColors.primary,
@@ -153,7 +153,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   border: Border.all(color: AppColors.primary, width: 2),
                 ),
                 child: GestureDetector(
-                  onTap: () => _showPfpPicker(context, userData),
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
+                  },
                   child: Stack(
                     children: [
                       CircleAvatar(
@@ -201,13 +203,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      user?.name ?? 'Anonymous User',
-                      style: GoogleFonts.dmSans(
-                        color: Theme.of(context).colorScheme.onSurface,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    Row(
+                      children: [
+                        Text(
+                          user?.name ?? 'Anonymous User',
+                          style: GoogleFonts.dmSans(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
+                          },
+                          child: Icon(Icons.edit, size: 16, color: AppColors.primary),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -316,138 +329,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildAnalyticsDashboard(BuildContext context) {
-    final tracking = context.watch<TrackingProvider>();
-    final allItems = tracking.trackedTitles.values.toList();
-    
-    // Calculations
-    final watched = allItems.where((t) => t.status == TrackingStatus.watched).toList();
-    final totalEpisodes = watched.fold(0, (sum, item) => sum + item.lastEpisode);
-    final totalHours = (totalEpisodes * 24) / 60; // Assuming 24 mins per episode
-    
-    final completionRate = allItems.isEmpty ? 0.0 : (watched.length / allItems.length);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? Colors.white.withValues(alpha: 0.05)
-                  : Colors.black.withValues(alpha: 0.05),
-              width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(Icons.analytics_outlined, color: AppColors.primary, size: 20),
-                const SizedBox(width: 12),
-                Text(
-                  'BINGE ANALYTICS',
-                  style: GoogleFonts.dmSans(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildAnalyticsItem(
-                  '${totalHours.toStringAsFixed(1)}h',
-                  'TIME INVESTED',
-                  Icons.access_time_rounded,
-                ),
-                _buildAnalyticsItem(
-                  '${(completionRate * 100).toInt()}%',
-                  'COMPLETION',
-                  Icons.check_circle_outline_rounded,
-                ),
-                _buildAnalyticsItem(
-                  watched.length.toString(),
-                  'TITLES DONE',
-                  Icons.auto_awesome_motion_rounded,
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            // Progress Bar
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'LOYALTY LEVEL: BINGE MASTER',
-                      style: GoogleFonts.dmSans(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6), fontSize: 9, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      'XP: ${watched.length * 100}/1000',
-                      style: GoogleFonts.dmSans(color: AppColors.primary, fontSize: 9, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: (watched.length % 10) / 10,
-                    backgroundColor: Colors.white10,
-                    color: AppColors.primary,
-                    minHeight: 4,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAnalyticsItem(String value, String label, IconData icon) {
-    return Column(
-      children: [
-        Icon(icon, color: AppColors.textMuted, size: 16),
-        const SizedBox(height: 12),
-        Text(
-          value,
-          style: GoogleFonts.playfairDisplay(
-            color: Theme.of(context).colorScheme.onSurface,
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: GoogleFonts.dmSans(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-            fontSize: 8,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1,
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildLibrarySections(BuildContext context) {
     final tracking = context.watch<TrackingProvider>();
@@ -572,14 +454,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          _buildPreferenceTile(
-            icon: Icons.person_outline,
-            title: 'Edit Profile',
-            trailing: const Icon(Icons.arrow_forward_ios, color: AppColors.textMuted, size: 14),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen()));
-            },
-          ),
+
           _buildPreferenceTile(
             icon: Icons.security_outlined,
             title: 'Account Settings',

@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use, avoid_print, unused_element, experimental_member_use
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -199,3 +200,4 @@ class UserDataProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
+

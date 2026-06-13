@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use, avoid_print, unused_element, experimental_member_use
 import 'package:appwrite/appwrite.dart';
 import 'package:appwrite/models.dart' as models;
 import 'package:flutter/material.dart';
@@ -277,6 +278,23 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> verifyEmail({required String userId, required String secret}) async {
+    try {
+      await _account.updateVerification(userId: userId, secret: secret);
+      _user = await _account.get();
+      notifyListeners();
+      return true;
+    } on AppwriteException catch (e) {
+      _error = e.message ?? e.toString();
+      notifyListeners();
+      return false;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<void> checkEmailVerification() async {
     try {
       if (_user != null) {
@@ -322,3 +340,4 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 }
+

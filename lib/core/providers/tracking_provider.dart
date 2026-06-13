@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use, avoid_print, unused_element, experimental_member_use
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,6 +30,7 @@ class TrackingProvider extends ChangeNotifier {
 
   void setUserId(String? userId) {
     final bool userChanged = _currentUserId != userId;
+    if (!userChanged) return;
     _currentUserId = userId;
     if (userId != null) {
       // Always sync from cloud on login (covers same-account cross-device login).
@@ -420,7 +422,10 @@ class TrackingProvider extends ChangeNotifier {
       final response = await _databases.listDocuments(
         databaseId: AppwriteConstants.databaseId,
         collectionId: AppwriteConstants.trackingCollectionId,
-        queries: [Query.equal(AppwriteConstants.attrUserId, _currentUserId!)],
+        queries: [
+          Query.equal(AppwriteConstants.attrUserId, _currentUserId!),
+          Query.limit(1000),
+        ],
       );
 
       for (var doc in response.documents) {
@@ -512,3 +517,4 @@ class TrackingProvider extends ChangeNotifier {
     }
   }
 }
+

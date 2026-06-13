@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use, avoid_print, unused_element, experimental_member_use
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -286,3 +287,4 @@ class SyncProvider extends ChangeNotifier {
     super.dispose();
   }
 }
+

@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use, avoid_print, unused_element, experimental_member_use
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -83,6 +84,7 @@ class WatchlistFolderProvider extends ChangeNotifier {
   }
 
   void setUserId(String? userId) {
+    if (_currentUserId == userId) return;
     _currentUserId = userId;
     if (userId != null) {
       // Always re-sync folders from cloud on login for cross-device support.
@@ -215,7 +217,10 @@ class WatchlistFolderProvider extends ChangeNotifier {
       final response = await _databases.listDocuments(
         databaseId: AppwriteConstants.databaseId,
         collectionId: AppwriteConstants.foldersCollectionId,
-        queries: [Query.equal(AppwriteConstants.attrUserId, _currentUserId!)],
+        queries: [
+          Query.equal(AppwriteConstants.attrUserId, _currentUserId!),
+          Query.limit(100),
+        ],
       );
 
       if (response.documents.isNotEmpty) {
@@ -269,3 +274,4 @@ class WatchlistFolderProvider extends ChangeNotifier {
     }
   }
 }
+

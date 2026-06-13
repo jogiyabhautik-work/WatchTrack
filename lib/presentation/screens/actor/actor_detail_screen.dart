@@ -236,7 +236,7 @@ class _ActorDetailScreenState extends State<ActorDetailScreen> {
         ),
         const SizedBox(height: 16),
         SizedBox(
-          height: 180,
+          height: 200,
           child: ListView.builder(
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 16),

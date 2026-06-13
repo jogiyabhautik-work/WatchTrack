@@ -9,6 +9,7 @@ import 'package:watch_track/presentation/widgets/mini_audio_player.dart';
 import 'package:provider/provider.dart';
 import 'package:watch_track/core/providers/auth_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:watch_track/features/update/presentation/widgets/update_banner.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -45,34 +46,41 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       extendBody: true,
       backgroundColor: Colors.black,
-      body: Stack(
+      body: Column(
         children: [
-          IndexedStack(
-            index: _selectedIndex,
-            children: _screens,
-          ),
-          if (isOffline)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: SafeArea(
-                child: Container(
-                  color: Colors.redAccent.withValues(alpha: 0.9),
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: const Center(
-                    child: Text(
-                      'You are offline. Showing cached data.',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+          const UpdateBanner(),
+          Expanded(
+            child: Stack(
+              children: [
+                IndexedStack(
+                  index: _selectedIndex,
+                  children: _screens,
+                ),
+                if (isOffline)
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: SafeArea(
+                      child: Container(
+                        color: Colors.redAccent.withValues(alpha: 0.9),
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: const Center(
+                          child: Text(
+                            'You are offline. Showing cached data.',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
+              ],
             ),
+          ),
         ],
       ),
       bottomNavigationBar: Column(

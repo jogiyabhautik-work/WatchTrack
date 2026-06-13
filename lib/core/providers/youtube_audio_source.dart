@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use, avoid_print, unused_element, experimental_member_use
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -66,3 +67,4 @@ class YoutubeAudioSource extends StreamAudioSource {
     }
   }
 }
+

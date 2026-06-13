@@ -870,7 +870,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         const SizedBox(height: 16),
         SizedBox(
-          height: 180,
+          height: 200,
           child: ListView.builder(
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -905,7 +905,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 40),
             _buildListSkeleton(80, 170),
             const SizedBox(height: 40),
-            _buildListSkeleton(180, 120),
+            _buildListSkeleton(200, 140),
           ],
         ),
       ),

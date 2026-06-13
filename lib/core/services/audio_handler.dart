@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use, avoid_print, unused_element, experimental_member_use
  import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
@@ -204,3 +205,4 @@ class SoundtrackAudioHandler extends BaseAudioHandler with QueueHandler, SeekHan
   Stream<Duration?> get durationStream => _player.durationStream;
   Stream<SequenceState?> get sequenceStateStream => _player.sequenceStateStream;
 }
+
